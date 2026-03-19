@@ -6,6 +6,10 @@ import {
   listCategoriesController,
 } from './controllers/categoryController.js';
 import {
+  createOrderController,
+  listUserOrdersController,
+} from './controllers/orderController.js';
+import {
   createProductController,
   deleteProductController,
   healthController,
@@ -27,6 +31,9 @@ app.post('/api/auth/signup', (request, response, next) => {
 app.post('/api/auth/signin', (request, response, next) => {
   void signInController(request, response).catch(next);
 });
+app.get('/api/users/:userId/orders', (request, response, next) => {
+  void listUserOrdersController(request, response).catch(next);
+});
 app.get('/api/categories', (request, response, next) => {
   void listCategoriesController(request, response).catch(next);
 });
@@ -41,6 +48,9 @@ app.get('/api/products/:id', (request, response, next) => {
 });
 app.post('/api/products', (request, response, next) => {
   void createProductController(request, response).catch(next);
+});
+app.post('/api/orders', (request, response, next) => {
+  void createOrderController(request, response).catch(next);
 });
 app.put('/api/products/:id', (request, response, next) => {
   void updateProductController(request, response).catch(next);

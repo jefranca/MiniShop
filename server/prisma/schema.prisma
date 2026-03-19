@@ -25,6 +25,41 @@ model User {
   name         String
   email        String   @unique
   passwordHash String
+  orders       Order[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  customerName  String
+  email         String
+  cep           String
+  street        String
+  number        String
+  neighborhood  String
+  city          String
+  state         String
+  paymentMethod String
+  subtotal      Float
+  shipping      Float
+  discount      Float
+  total         Float
+  createdAt     DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id          Int    @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  name        String
+  price       Float
+  quantity    Int
+  image       String
+  category    String
+  description String
+  order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }

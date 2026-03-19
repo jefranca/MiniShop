@@ -132,6 +132,106 @@ describe('MiniShop API', () => {
     });
   });
 
+  it('cria um pedido para um usuario existente', async () => {
+    const signUpResponse = await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    const response = await request(app).post('/api/orders').send({
+      userId: signUpResponse.body.user.id,
+      customerName: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      cep: '01001000',
+      street: 'Praca da Se',
+      number: '100',
+      neighborhood: 'Se',
+      city: 'Sao Paulo',
+      state: 'SP',
+      paymentMethod: 'cartao',
+      subtotal: 179.9,
+      shipping: 18.9,
+      discount: 0,
+      total: 198.8,
+      items: [
+        {
+          id: 2,
+          name: 'Fone Pulse Mini',
+          category: 'Tecnologia',
+          price: 179.9,
+          image: '[headphones]',
+          description: 'Som limpo, bateria de longa duracao e estojo compacto para o dia a dia.',
+          quantity: 1,
+        },
+      ],
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body.message).toBe('Order created successfully.');
+    expect(response.body.order).toEqual(
+      expect.objectContaining({
+        id: expect.any(Number),
+        userId: signUpResponse.body.user.id,
+        total: 198.8,
+      }),
+    );
+    expect(response.body.order.items[0]).toEqual(
+      expect.objectContaining({
+        name: 'Fone Pulse Mini',
+        quantity: 1,
+      }),
+    );
+  });
+
+  it('lista pedidos do usuario logado', async () => {
+    const signUpResponse = await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    await request(app).post('/api/orders').send({
+      userId: signUpResponse.body.user.id,
+      customerName: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      cep: '01001000',
+      street: 'Praca da Se',
+      number: '100',
+      neighborhood: 'Se',
+      city: 'Sao Paulo',
+      state: 'SP',
+      paymentMethod: 'cartao',
+      subtotal: 179.9,
+      shipping: 18.9,
+      discount: 0,
+      total: 198.8,
+      items: [
+        {
+          id: 2,
+          name: 'Fone Pulse Mini',
+          category: 'Tecnologia',
+          price: 179.9,
+          image: '[headphones]',
+          description: 'Som limpo, bateria de longa duracao e estojo compacto para o dia a dia.',
+          quantity: 1,
+        },
+      ],
+    });
+
+    const response = await request(app).get(`/api/users/${signUpResponse.body.user.id}/orders`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(1);
+    expect(response.body[0]).toEqual(
+      expect.objectContaining({
+        userId: signUpResponse.body.user.id,
+        customerName: 'Jefferson Franca',
+        total: 198.8,
+      }),
+    );
+  });
+
   it('retorna um produto especifico por id', async () => {
     const response = await request(app).get('/api/products/2');
 

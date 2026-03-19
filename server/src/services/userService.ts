@@ -25,6 +25,16 @@ export async function findUserByEmail(email: string) {
   })) as PersistedUser | null;
 }
 
+export async function findUserById(userId: number) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  return user ? toPublicUser(user as PersistedUser) : null;
+}
+
 export async function createUser(input: UserInput) {
   const existingUser = await findUserByEmail(input.email);
 
