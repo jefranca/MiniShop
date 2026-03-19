@@ -1,54 +1,12 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-
-type Product = {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  image: string;
-  description: string;
-};
-
-type ProductFormState = {
-  name: string;
-  category: string;
-  price: string;
-  image: string;
-  description: string;
-};
-
-type CartItem = Product & {
-  quantity: number;
-};
-
-const currency = new Intl.NumberFormat('pt-BR', {
-  style: 'currency',
-  currency: 'BRL',
-});
-
-const categories = ['Todos', 'Moda', 'Tecnologia', 'Casa'];
-
-const initialProductForm: ProductFormState = {
-  name: '',
-  category: 'Moda',
-  price: '',
-  image: '',
-  description: '',
-};
-
-function getCurrentPage() {
-  return window.location.hash === '#/admin' ? 'admin' : 'store';
-}
-
-function mapProductToForm(product: Product): ProductFormState {
-  return {
-    name: product.name,
-    category: product.category,
-    price: String(product.price),
-    image: product.image,
-    description: product.description,
-  };
-}
+import { Hero } from './components/Hero';
+import { TopNav } from './components/TopNav';
+import { AdminPage } from './features/admin/AdminPage';
+import { mapProductToForm } from './features/admin/adminUtils';
+import { CartPanel } from './features/cart/CartPanel';
+import { categories, getCurrentPage, initialProductForm } from './features/shared/constants';
+import { StorePage } from './features/store/StorePage';
+import type { CartItem, Product, ProductFormState } from './types/product';
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -104,7 +62,7 @@ export default function App() {
       }
     }
 
-    loadProducts();
+    void loadProducts();
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -145,6 +103,12 @@ export default function App() {
   function resetAdminForm() {
     setProductForm(initialProductForm);
     setEditingProductId(null);
+  }
+
+  function startEditingProduct(product: Product) {
+    setEditingProductId(product.id);
+    setProductForm(mapProductToForm(product));
+    setAdminMessage('');
   }
 
   async function handleCreateOrUpdateProduct(event: FormEvent<HTMLFormElement>) {
@@ -246,288 +210,46 @@ export default function App() {
   return (
     <div className="page-shell">
       <header className="hero">
-        <nav className="top-nav" aria-label="Principal">
-          <a
-            href="#/"
-            className={currentPage === 'store' ? 'top-nav__link is-active' : 'top-nav__link'}
-          >
-            Loja
-          </a>
-          <a
-            href="#/admin"
-            className={currentPage === 'admin' ? 'top-nav__link is-active' : 'top-nav__link'}
-          >
-            Admin
-          </a>
-        </nav>
-
-        <div className="hero__content">
-          <h1 className="eyebrow">MINISHOP</h1>
-          <h2 className="hero__subtitle">
-            {currentPage === 'admin' ? 'Painel admin' : 'Mini e-commerce'}
-          </h2>
-          <p className="hero__text">
-            {currentPage === 'admin'
-              ? 'Gerencie o catalogo da MiniShop em uma area separada da experiencia de compra.'
-              : 'Produtos em destaque com uma experiencia de compra simples e moderna.'}
-          </p>
-          <div className="hero__stats">
-            <span>{products.length} produtos online</span>
-            <span>{categories.length - 1} categorias</span>
-            <span>{cartCount} itens no carrinho</span>
-          </div>
-        </div>
+        <TopNav currentPage={currentPage} />
+        <Hero
+          currentPage={currentPage}
+          productCount={products.length}
+          categoryCount={categories.length - 1}
+          cartCount={cartCount}
+        />
       </header>
 
       {currentPage === 'admin' ? (
-        <section className="admin-panel admin-panel--page">
-          <div className="section-heading">
-            <div>
-              <p className="section-label">Admin</p>
-              <h2>Gerenciamento de produtos</h2>
-            </div>
-            <span className="admin-badge">{products.length} itens</span>
-          </div>
-
-          <p className="admin-text">
-            Esta area sera a base do painel da MiniShop para criar, editar e remover produtos.
-          </p>
-
-          <div className="admin-grid">
-            <form className="admin-form" onSubmit={handleCreateOrUpdateProduct}>
-              <div className="section-heading">
-                <div>
-                  <p className="section-label">
-                    {editingProductId !== null ? 'Editar produto' : 'Novo produto'}
-                  </p>
-                  <h2>{editingProductId !== null ? 'Atualizar item' : 'Cadastrar item'}</h2>
-                </div>
-              </div>
-
-              <label className="admin-field">
-                <span>Nome</span>
-                <input
-                  value={productForm.name}
-                  onChange={(event) =>
-                    setProductForm((current) => ({ ...current, name: event.target.value }))
-                  }
-                  placeholder="Ex.: Cadeira Aurora"
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>Categoria</span>
-                <select
-                  value={productForm.category}
-                  onChange={(event) =>
-                    setProductForm((current) => ({ ...current, category: event.target.value }))
-                  }
-                >
-                  {categories
-                    .filter((category) => category !== 'Todos')
-                    .map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                </select>
-              </label>
-
-              <label className="admin-field">
-                <span>Preco</span>
-                <input
-                  value={productForm.price}
-                  onChange={(event) =>
-                    setProductForm((current) => ({ ...current, price: event.target.value }))
-                  }
-                  placeholder="149.9"
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>Imagem</span>
-                <input
-                  value={productForm.image}
-                  onChange={(event) =>
-                    setProductForm((current) => ({ ...current, image: event.target.value }))
-                  }
-                  placeholder="[chair]"
-                />
-              </label>
-
-              <label className="admin-field">
-                <span>Descricao</span>
-                <textarea
-                  value={productForm.description}
-                  onChange={(event) =>
-                    setProductForm((current) => ({ ...current, description: event.target.value }))
-                  }
-                  placeholder="Descricao curta para o catalogo."
-                  rows={4}
-                />
-              </label>
-
-              {adminMessage ? <p className="status-message">{adminMessage}</p> : null}
-
-              <div className="admin-actions">
-                <button type="submit" className="checkout-button" disabled={isSubmittingProduct}>
-                  {isSubmittingProduct
-                    ? 'Salvando...'
-                    : editingProductId !== null
-                      ? 'Salvar alteracoes'
-                      : 'Criar produto'}
-                </button>
-
-                {editingProductId !== null ? (
-                  <button type="button" className="secondary-button" onClick={resetAdminForm}>
-                    Cancelar edicao
-                  </button>
-                ) : null}
-              </div>
-            </form>
-
-            <div>
-              {loading ? <p className="status-message">Carregando painel...</p> : null}
-              {error ? <p className="status-message status-message--error">{error}</p> : null}
-
-              <div className="admin-list">
-                {products.map((product) => (
-                  <article key={product.id} className="admin-card">
-                    <div className="admin-card__media" aria-hidden="true">
-                      {product.image}
-                    </div>
-
-                    <div className="admin-card__content">
-                      <div>
-                        <p className="section-label">{product.category}</p>
-                        <h3>{product.name}</h3>
-                        <p>{product.description}</p>
-                      </div>
-
-                      <div className="admin-card__meta">
-                        <strong>{currency.format(product.price)}</strong>
-                        <span>ID #{product.id}</span>
-                      </div>
-
-                      <div className="admin-card__actions">
-                        <button
-                          type="button"
-                          className="secondary-button"
-                          onClick={() => {
-                            setEditingProductId(product.id);
-                            setProductForm(mapProductToForm(product));
-                            setAdminMessage('');
-                          }}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          className="danger-button"
-                          onClick={() => handleDeleteProduct(product.id)}
-                        >
-                          Excluir
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+        <AdminPage
+          products={products}
+          loading={loading}
+          error={error}
+          productForm={productForm}
+          setProductForm={(updater) => setProductForm((current) => updater(current))}
+          editingProductId={editingProductId}
+          adminMessage={adminMessage}
+          isSubmittingProduct={isSubmittingProduct}
+          handleCreateOrUpdateProduct={handleCreateOrUpdateProduct}
+          handleDeleteProduct={handleDeleteProduct}
+          startEditingProduct={startEditingProduct}
+          resetAdminForm={resetAdminForm}
+        />
       ) : (
         <main className="content-grid">
-          <section className="catalog">
-            <div className="section-heading">
-              <div>
-                <p className="section-label">Catalogo</p>
-                <h2>Escolha os destaques da semana</h2>
-              </div>
-
-              <div className="filters" role="tablist" aria-label="Filtrar produtos por categoria">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    type="button"
-                    className={category === selectedCategory ? 'is-active' : ''}
-                    onClick={() => setSelectedCategory(category)}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {loading ? <p className="status-message">Carregando produtos...</p> : null}
-            {error ? <p className="status-message status-message--error">{error}</p> : null}
-
-            <div className="product-grid">
-              {filteredProducts.map((product) => (
-                <article key={product.id} className="product-card">
-                  <div className="product-card__image" aria-hidden="true">
-                    {product.image}
-                  </div>
-                  <div className="product-card__body">
-                    <span className="product-card__category">{product.category}</span>
-                    <h3>{product.name}</h3>
-                    <p>{product.description}</p>
-                    <div className="product-card__footer">
-                      <strong>{currency.format(product.price)}</strong>
-                      <button type="button" onClick={() => addToCart(product)}>
-                        Adicionar
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <aside className="cart-panel">
-            <div className="section-heading">
-              <div>
-                <p className="section-label">Carrinho</p>
-                <h2>Resumo do pedido</h2>
-              </div>
-              <span className="cart-badge">{cartCount}</span>
-            </div>
-
-            <div className="cart-list">
-              {cart.length === 0 ? (
-                <p className="status-message">Seu carrinho ainda esta vazio.</p>
-              ) : (
-                cart.map((item) => (
-                  <div key={item.id} className="cart-item">
-                    <div>
-                      <strong>{item.name}</strong>
-                      <p>{currency.format(item.price)}</p>
-                    </div>
-
-                    <div className="quantity-control">
-                      <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
-                        -
-                      </button>
-                      <span>{item.quantity}</span>
-                      <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
-                        +
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="cart-summary">
-              <div>
-                <span>Subtotal</span>
-                <strong>{currency.format(cartTotal)}</strong>
-              </div>
-              <button type="button" className="checkout-button">
-                Finalizar pedido
-              </button>
-            </div>
-          </aside>
+          <StorePage
+            filteredProducts={filteredProducts}
+            loading={loading}
+            error={error}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            addToCart={addToCart}
+          />
+          <CartPanel
+            cart={cart}
+            cartCount={cartCount}
+            cartTotal={cartTotal}
+            updateQuantity={updateQuantity}
+          />
         </main>
       )}
     </div>
