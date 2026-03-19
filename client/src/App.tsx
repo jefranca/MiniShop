@@ -8,6 +8,8 @@ import { Categories } from './pages/Categories';
 import { Checkout } from './pages/Checkout';
 import { Home } from './pages/Home';
 import { OrderSuccess } from './pages/OrderSuccess';
+import { SignIn } from './pages/SignIn';
+import { SignUp } from './pages/SignUp';
 import { createCategory, listCategories } from './services/categoryService';
 import { createProduct, deleteProduct, listProducts, updateProduct } from './services/productService';
 import type { CartItem, Category, Product, ProductFormState } from './types/product';
@@ -24,7 +26,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState<
-    'store' | 'catalog' | 'categories' | 'checkout' | 'order-success' | 'admin'
+    'store' | 'catalog' | 'categories' | 'checkout' | 'order-success' | 'signin' | 'signup' | 'admin'
   >(
     getCurrentRoute().page,
   );
@@ -41,7 +43,12 @@ export default function App() {
       const route = getCurrentRoute();
       setCurrentPage(route.page);
 
-      if (route.page !== 'admin' && route.page !== 'checkout') {
+      if (
+        route.page !== 'admin' &&
+        route.page !== 'checkout' &&
+        route.page !== 'signin' &&
+        route.page !== 'signup'
+      ) {
         setSelectedCategory(route.category);
       }
     };
@@ -302,6 +309,10 @@ export default function App() {
             updateQuantity={updateQuantity}
           />
         </main>
+      ) : currentPage === 'signin' ? (
+        <SignIn />
+      ) : currentPage === 'signup' ? (
+        <SignUp />
       ) : (
         <main className="content-grid">
           {currentPage === 'checkout' ? (

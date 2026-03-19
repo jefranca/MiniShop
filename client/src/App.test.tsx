@@ -204,6 +204,34 @@ describe('App', () => {
     });
   });
 
+  it('abre a pagina de login pela navegacao', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Entrar' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Entrar na sua conta' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument();
+      expect(screen.getByText(/acompanhe pedidos, favoritos/i)).toBeInTheDocument();
+    });
+  });
+
+  it('abre a pagina de cadastro pela navegacao', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Criar conta' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Criar conta na MiniShop' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Criar conta' })).toBeInTheDocument();
+      expect(screen.getByText(/historico de pedidos/i)).toBeInTheDocument();
+    });
+  });
+
   it('abre o catalogo completo pela opcao ver tudo', async () => {
     const user = userEvent.setup();
 

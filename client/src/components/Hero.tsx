@@ -1,5 +1,13 @@
 type HeroProps = {
-  currentPage: 'store' | 'catalog' | 'categories' | 'checkout' | 'order-success' | 'admin';
+  currentPage:
+    | 'store'
+    | 'catalog'
+    | 'categories'
+    | 'checkout'
+    | 'order-success'
+    | 'signin'
+    | 'signup'
+    | 'admin';
   productCount: number;
   categoryCount: number;
   cartCount: number;
@@ -12,6 +20,10 @@ export function Hero({ currentPage, productCount, categoryCount, cartCount }: He
       <h2 className="hero__subtitle">
         {currentPage === 'admin'
           ? 'Painel admin'
+          : currentPage === 'signin'
+            ? 'Entrar'
+          : currentPage === 'signup'
+            ? 'Criar conta'
           : currentPage === 'order-success'
             ? 'Pedido confirmado'
           : currentPage === 'checkout'
@@ -25,6 +37,10 @@ export function Hero({ currentPage, productCount, categoryCount, cartCount }: He
       <p className="hero__text">
         {currentPage === 'admin'
           ? 'Gerencie o catalogo da MiniShop.'
+          : currentPage === 'signin'
+            ? 'Acesse sua conta para acompanhar pedidos, favoritos e proximos passos da MiniShop.'
+          : currentPage === 'signup'
+            ? 'Crie sua conta para salvar pedidos, favoritos e uma experiencia mais completa na MiniShop.'
           : currentPage === 'order-success'
             ? 'Seu pedido foi recebido e a MiniShop ja pode seguir com as proximas etapas da compra.'
           : currentPage === 'checkout'

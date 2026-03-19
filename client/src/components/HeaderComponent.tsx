@@ -1,5 +1,13 @@
 type HeaderComponentProps = {
-  currentPage: 'store' | 'catalog' | 'categories' | 'checkout' | 'order-success' | 'admin';
+  currentPage:
+    | 'store'
+    | 'catalog'
+    | 'categories'
+    | 'checkout'
+    | 'order-success'
+    | 'signin'
+    | 'signup'
+    | 'admin';
 };
 
 export function HeaderComponent({ currentPage }: HeaderComponentProps) {
@@ -26,6 +34,18 @@ export function HeaderComponent({ currentPage }: HeaderComponentProps) {
         className={currentPage === 'admin' ? 'top-nav__link is-active' : 'top-nav__link'}
       >
         Admin
+      </a>
+      <a
+        href="#/signin"
+        className={currentPage === 'signin' ? 'top-nav__link is-active' : 'top-nav__link'}
+      >
+        Entrar
+      </a>
+      <a
+        href="#/signup"
+        className={currentPage === 'signup' ? 'top-nav__link is-active' : 'top-nav__link'}
+      >
+        Criar conta
       </a>
     </nav>
   );
