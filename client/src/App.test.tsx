@@ -425,7 +425,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Confirmar pedido' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Pedido confirmado.' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Compra recebida com sucesso' })).toBeInTheDocument();
       expect(screen.getByText('Seu carrinho ainda esta vazio.')).toBeInTheDocument();
     });
   });

@@ -25,7 +25,6 @@ export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
   const [couponMessage, setCouponMessage] = useState('');
   const [discount, setDiscount] = useState(0);
   const [checkoutMessage, setCheckoutMessage] = useState('');
-  const [orderConfirmed, setOrderConfirmed] = useState(false);
 
   const isAddressComplete =
     cep.trim().length >= 8 &&
@@ -155,8 +154,6 @@ export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
       return;
     }
 
-    setCheckoutMessage('Pedido confirmado com sucesso.');
-    setOrderConfirmed(true);
     onConfirmOrder();
   }
 
@@ -173,18 +170,10 @@ export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
         </div>
       </div>
 
-      {cart.length === 0 && !orderConfirmed ? (
+      {cart.length === 0 ? (
         <div className="checkout-empty">
           <h3>Seu carrinho esta vazio.</h3>
           <p>Adicione produtos antes de seguir para a finalizacao do pedido.</p>
-          <a href="#/" className="checkout-button checkout-button--inline">
-            Voltar para a loja
-          </a>
-        </div>
-      ) : orderConfirmed ? (
-        <div className="checkout-empty">
-          <h3>Pedido confirmado.</h3>
-          <p>Recebemos sua compra e a MiniShop ja pode seguir para as proximas etapas do pedido.</p>
           <a href="#/" className="checkout-button checkout-button--inline">
             Voltar para a loja
           </a>

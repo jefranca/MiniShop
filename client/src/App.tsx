@@ -7,11 +7,12 @@ import { Catalog } from './pages/Catalog';
 import { Categories } from './pages/Categories';
 import { Checkout } from './pages/Checkout';
 import { Home } from './pages/Home';
+import { OrderSuccess } from './pages/OrderSuccess';
 import { createCategory, listCategories } from './services/categoryService';
 import { createProduct, deleteProduct, listProducts, updateProduct } from './services/productService';
 import type { CartItem, Category, Product, ProductFormState } from './types/product';
 import { initialProductForm } from './utils/constants';
-import { buildCatalogHash, getCurrentRoute } from './utils/navigation';
+import { buildCatalogHash, buildOrderSuccessHash, getCurrentRoute } from './utils/navigation';
 import { mapProductToForm } from './utils/productForm';
 import { loadCart, saveCart } from './utils/localStorage';
 
@@ -23,7 +24,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState<
-    'store' | 'catalog' | 'categories' | 'checkout' | 'admin'
+    'store' | 'catalog' | 'categories' | 'checkout' | 'order-success' | 'admin'
   >(
     getCurrentRoute().page,
   );
@@ -136,6 +137,7 @@ export default function App() {
 
   function handleConfirmOrder() {
     setCart([]);
+    window.location.hash = buildOrderSuccessHash();
   }
 
   function resetAdminForm() {
@@ -290,6 +292,16 @@ export default function App() {
           startEditingProduct={startEditingProduct}
           resetAdminForm={resetAdminForm}
         />
+      ) : currentPage === 'order-success' ? (
+        <main className="content-grid">
+          <OrderSuccess />
+          <CartPanel
+            cart={cart}
+            cartCount={cartCount}
+            cartTotal={cartTotal}
+            updateQuantity={updateQuantity}
+          />
+        </main>
       ) : (
         <main className="content-grid">
           {currentPage === 'checkout' ? (
