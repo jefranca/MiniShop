@@ -1,9 +1,9 @@
-import type { Product } from '../types/product';
+import type { Category, Product } from '../types/product';
 import { ProductImage } from '../components/ProductImage';
-import { categories } from '../utils/constants';
 import { currency } from '../utils/formatters';
 
 type CatalogProps = {
+  categories: Category[];
   filteredProducts: Product[];
   loading: boolean;
   error: string;
@@ -13,6 +13,7 @@ type CatalogProps = {
 };
 
 export function Catalog({
+  categories,
   filteredProducts,
   loading,
   error,
@@ -39,18 +40,21 @@ export function Catalog({
           <p className="catalog__text">{description}</p>
         </div>
 
-        <div className="filters" role="tablist" aria-label="Filtrar catalogo completo por categoria">
-          {categories.map((category) => (
-            <button
-              key={category}
-              type="button"
-              className={category === selectedCategory ? 'is-active' : ''}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+        <label className="catalog-select">
+          <span className="section-label">Filtro</span>
+          <select
+            value={selectedCategory}
+            onChange={(event) => setSelectedCategory(event.target.value)}
+            aria-label="Filtrar catalogo completo por categoria"
+          >
+            <option value="Todos">Todos</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {loading ? <p className="status-message">Carregando produtos...</p> : null}

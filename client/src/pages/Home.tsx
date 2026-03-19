@@ -1,15 +1,12 @@
 import type { Product } from '../types/product';
 import { ProductImage } from '../components/ProductImage';
 import { currency } from '../utils/formatters';
-import { categories } from '../utils/constants';
 import { buildCatalogHash } from '../utils/navigation';
 
 type HomeProps = {
   filteredProducts: Product[];
   loading: boolean;
   error: string;
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
   addToCart: (product: Product) => void;
 };
 
@@ -19,14 +16,10 @@ export function Home({
   filteredProducts,
   loading,
   error,
-  selectedCategory,
-  setSelectedCategory,
   addToCart,
 }: HomeProps) {
   const visibleProducts = filteredProducts.slice(0, HOME_PRODUCT_LIMIT);
   const hasMoreProducts = filteredProducts.length > HOME_PRODUCT_LIMIT;
-  const viewAllLabel =
-    selectedCategory === 'Todos' ? 'Ver todos os produtos' : `Ver tudo em ${selectedCategory}`;
 
   return (
     <section className="catalog">
@@ -34,19 +27,10 @@ export function Home({
         <div>
           <p className="section-label">Catalogo</p>
           <h2>Escolha os destaques da semana</h2>
-        </div>
-
-        <div className="filters" role="tablist" aria-label="Filtrar produtos por categoria">
-          {categories.map((category) => (
-            <button
-              key={category}
-              type="button"
-              className={category === selectedCategory ? 'is-active' : ''}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
+          <p className="catalog__text">
+            A home mostra um recorte mais leve da vitrine. Para navegar por categorias, use a
+            pagina dedicada.
+          </p>
         </div>
       </div>
 
@@ -78,18 +62,14 @@ export function Home({
         ))}
 
         {hasMoreProducts ? (
-          <a href={buildCatalogHash(selectedCategory)} className="product-card product-card--cta">
+          <a href={buildCatalogHash('Todos')} className="product-card product-card--cta">
             <div className="product-card__image product-card__image--cta">
               <span className="product-card__cta-icon">+</span>
             </div>
             <div className="product-card__body product-card__body--cta">
               <span className="product-card__category">Continue explorando</span>
-              <h3>{viewAllLabel}</h3>
-              <p>
-                {selectedCategory === 'Todos'
-                  ? 'Abra o catalogo completo da MiniShop com todos os itens disponiveis.'
-                  : `Abra a categoria ${selectedCategory} com todos os produtos disponiveis.`}
-              </p>
+              <h3>Ver todos os produtos</h3>
+              <p>Abra o catalogo completo da MiniShop com todos os itens disponiveis.</p>
               <div className="product-card__footer">
                 <strong>{filteredProducts.length} itens</strong>
                 <span className="product-card__cta-link">Ver tudo</span>

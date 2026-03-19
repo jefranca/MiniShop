@@ -1,5 +1,5 @@
 type HeroProps = {
-  currentPage: 'store' | 'catalog' | 'admin';
+  currentPage: 'store' | 'catalog' | 'categories' | 'admin';
   productCount: number;
   categoryCount: number;
   cartCount: number;
@@ -12,6 +12,8 @@ export function Hero({ currentPage, productCount, categoryCount, cartCount }: He
       <h2 className="hero__subtitle">
         {currentPage === 'admin'
           ? 'Painel admin'
+          : currentPage === 'categories'
+            ? 'Categorias'
           : currentPage === 'catalog'
             ? 'Catalogo completo'
             : 'Mini e-commerce'}
@@ -19,6 +21,8 @@ export function Hero({ currentPage, productCount, categoryCount, cartCount }: He
       <p className="hero__text">
         {currentPage === 'admin'
           ? 'Gerencie o catalogo da MiniShop.'
+          : currentPage === 'categories'
+            ? 'Explore as categorias da MiniShop sem apertar o layout da vitrine.'
           : currentPage === 'catalog'
             ? 'Explore todos os produtos da MiniShop sem deixar a pagina pesada.'
             : 'Produtos em destaque com uma experiencia de compra simples e moderna.'}

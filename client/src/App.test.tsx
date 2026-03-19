@@ -3,6 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 
+const categories = [
+  { id: 1, name: 'Moda' },
+  { id: 2, name: 'Tecnologia' },
+  { id: 3, name: 'Casa' },
+];
+
 const products = [
   {
     id: 1,
@@ -96,6 +102,23 @@ describe('App', () => {
       vi.fn().mockImplementation((input, init) => {
         const url = String(input);
 
+        if (url.includes('/api/categories') && !init?.method) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => categories,
+          });
+        }
+
+        if (init?.method === 'POST' && url.includes('/api/categories')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              id: 4,
+              name: 'Acessorios',
+            }),
+          });
+        }
+
         if (init?.method === 'POST') {
           return Promise.resolve({
             ok: true,
@@ -150,8 +173,22 @@ describe('App', () => {
       expect(screen.getByText('Escolha os destaques da semana')).toBeInTheDocument();
       expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /ver todos os produtos/i })).toBeInTheDocument();
+      expect(screen.getByText(/pagina dedicada/i)).toBeInTheDocument();
       expect(screen.queryByText('Bone Venture')).not.toBeInTheDocument();
       expect(screen.queryByText('Gerenciamento de produtos')).not.toBeInTheDocument();
+    });
+  });
+
+  it('abre a pagina de categorias pela navegacao', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Categorias' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Explore por categoria')).toBeInTheDocument();
+      expect(screen.getByText('Tecnologia')).toBeInTheDocument();
     });
   });
 
@@ -192,8 +229,12 @@ describe('App', () => {
 
     await user.click(screen.getByRole('link', { name: 'Admin' }));
 
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Criar categoria' })).toBeInTheDocument();
+    });
+
     await user.type(screen.getByPlaceholderText('Ex.: Cadeira Aurora'), 'Cadeira Aurora');
-    await user.selectOptions(screen.getByRole('combobox'), 'Casa');
+    await user.selectOptions(screen.getAllByRole('combobox')[0], 'Casa');
     await user.type(screen.getByPlaceholderText('149.9'), '129.9');
     await user.type(screen.getByPlaceholderText('[chair]'), 'chair');
     await user.type(
@@ -248,6 +289,20 @@ describe('App', () => {
     await waitFor(() => {
       expect(screen.getByText('Produto removido com sucesso.')).toBeInTheDocument();
       expect(screen.queryByText('Fone Pulse Mini')).not.toBeInTheDocument();
+    });
+  });
+
+  it('cria uma categoria pelo admin', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Admin' }));
+    await user.type(screen.getByPlaceholderText('Ex.: Acessorios'), 'Acessorios');
+    await user.click(screen.getByRole('button', { name: 'Criar categoria' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Categoria criada com sucesso.')).toBeInTheDocument();
     });
   });
 

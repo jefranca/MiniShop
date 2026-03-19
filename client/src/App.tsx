@@ -4,26 +4,32 @@ import { HeaderComponent } from './components/HeaderComponent';
 import { Hero } from './components/Hero';
 import { Admin } from './pages/Admin';
 import { Catalog } from './pages/Catalog';
+import { Categories } from './pages/Categories';
 import { Home } from './pages/Home';
+import { createCategory, listCategories } from './services/categoryService';
 import { createProduct, deleteProduct, listProducts, updateProduct } from './services/productService';
-import type { CartItem, Product, ProductFormState } from './types/product';
-import { categories, initialProductForm } from './utils/constants';
+import type { CartItem, Category, Product, ProductFormState } from './types/product';
+import { initialProductForm } from './utils/constants';
 import { buildCatalogHash, getCurrentRoute } from './utils/navigation';
 import { mapProductToForm } from './utils/productForm';
 import { loadCart, saveCart } from './utils/localStorage';
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentPage, setCurrentPage] = useState<'store' | 'catalog' | 'admin'>(
+  const [currentPage, setCurrentPage] = useState<'store' | 'catalog' | 'categories' | 'admin'>(
     getCurrentRoute().page,
   );
   const [productForm, setProductForm] = useState<ProductFormState>(initialProductForm);
   const [adminMessage, setAdminMessage] = useState('');
+  const [categoryForm, setCategoryForm] = useState('');
+  const [categoryMessage, setCategoryMessage] = useState('');
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
+  const [isSubmittingCategory, setIsSubmittingCategory] = useState(false);
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -50,11 +56,16 @@ export default function App() {
   }, [cart]);
 
   useEffect(() => {
-    async function loadProducts() {
+    async function loadStoreData() {
       try {
         setLoading(true);
-        const data = await listProducts();
-        setProducts(data);
+        const [productsData, categoriesData] = await Promise.all([listProducts(), listCategories()]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+        setProductForm((current) => ({
+          ...current,
+          category: current.category || categoriesData[0]?.name || '',
+        }));
       } catch (fetchError) {
         const message =
           fetchError instanceof Error
@@ -66,7 +77,7 @@ export default function App() {
       }
     }
 
-    void loadProducts();
+    void loadStoreData();
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -79,6 +90,14 @@ export default function App() {
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const productsCountByCategory = useMemo(
+    () =>
+      products.reduce<Record<string, number>>((accumulator, product) => {
+        accumulator[product.category] = (accumulator[product.category] ?? 0) + 1;
+        return accumulator;
+      }, {}),
+    [products],
+  );
 
   function addToCart(product: Product) {
     setCart((currentCart) => {
@@ -113,7 +132,10 @@ export default function App() {
   }
 
   function resetAdminForm() {
-    setProductForm(initialProductForm);
+    setProductForm({
+      ...initialProductForm,
+      category: categories[0]?.name || '',
+    });
     setEditingProductId(null);
   }
 
@@ -121,6 +143,36 @@ export default function App() {
     setEditingProductId(product.id);
     setProductForm(mapProductToForm(product));
     setAdminMessage('');
+  }
+
+  async function handleCreateCategory(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setCategoryMessage('');
+
+    if (!categoryForm.trim()) {
+      setCategoryMessage('Preencha o nome da categoria antes de salvar.');
+      return;
+    }
+
+    try {
+      setIsSubmittingCategory(true);
+      const savedCategory = await createCategory(categoryForm.trim());
+      setCategories((currentCategories) =>
+        [...currentCategories, savedCategory].sort((a, b) => a.name.localeCompare(b.name)),
+      );
+      setProductForm((current) => ({
+        ...current,
+        category: current.category || savedCategory.name,
+      }));
+      setCategoryForm('');
+      setCategoryMessage('Categoria criada com sucesso.');
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error ? submitError.message : 'Erro inesperado ao salvar categoria.';
+      setCategoryMessage(message);
+    } finally {
+      setIsSubmittingCategory(false);
+    }
   }
 
   async function handleCreateOrUpdateProduct(event: FormEvent<HTMLFormElement>) {
@@ -205,13 +257,14 @@ export default function App() {
         <Hero
           currentPage={currentPage}
           productCount={products.length}
-          categoryCount={categories.length - 1}
+          categoryCount={categories.length}
           cartCount={cartCount}
         />
       </header>
 
       {currentPage === 'admin' ? (
         <Admin
+          categories={categories}
           products={products}
           loading={loading}
           error={error}
@@ -219,7 +272,12 @@ export default function App() {
           setProductForm={(updater) => setProductForm((current) => updater(current))}
           editingProductId={editingProductId}
           adminMessage={adminMessage}
+          categoryForm={categoryForm}
+          setCategoryForm={setCategoryForm}
+          categoryMessage={categoryMessage}
+          isSubmittingCategory={isSubmittingCategory}
           isSubmittingProduct={isSubmittingProduct}
+          handleCreateCategory={handleCreateCategory}
           handleCreateOrUpdateProduct={handleCreateOrUpdateProduct}
           handleDeleteProduct={handleDeleteProduct}
           startEditingProduct={startEditingProduct}
@@ -227,8 +285,11 @@ export default function App() {
         />
       ) : (
         <main className="content-grid">
-          {currentPage === 'catalog' ? (
+          {currentPage === 'categories' ? (
+            <Categories categories={categories} productsCountByCategory={productsCountByCategory} />
+          ) : currentPage === 'catalog' ? (
             <Catalog
+              categories={categories}
               filteredProducts={filteredProducts}
               loading={loading}
               error={error}
@@ -238,11 +299,9 @@ export default function App() {
             />
           ) : (
             <Home
-              filteredProducts={filteredProducts}
+              filteredProducts={products}
               loading={loading}
               error={error}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={handleCategoryChange}
               addToCart={addToCart}
             />
           )}

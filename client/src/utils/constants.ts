@@ -1,10 +1,8 @@
 import type { ProductFormState } from '../types/product';
 
-export const categories = ['Todos', 'Moda', 'Tecnologia', 'Casa'];
-
 export const initialProductForm: ProductFormState = {
   name: '',
-  category: 'Moda',
+  category: '',
   price: '',
   image: '',
   description: '',
