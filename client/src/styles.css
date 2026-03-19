@@ -46,6 +46,25 @@ button {
   max-width: 640px;
 }
 
+.top-nav {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.top-nav__link {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 247, 238, 0.78);
+  text-decoration: none;
+}
+
+.top-nav__link.is-active {
+  background: #fff7ee;
+  color: #1b2a41;
+}
+
 .eyebrow,
 .section-label,
 .product-card__category {
@@ -94,6 +113,7 @@ button {
 
 .hero__stats span,
 .cart-badge,
+.admin-badge,
 .filters button,
 .quantity-control button,
 .checkout-button,
@@ -115,7 +135,8 @@ button {
 }
 
 .catalog,
-.cart-panel {
+.cart-panel,
+.admin-panel {
   background: rgba(255, 252, 248, 0.84);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(87, 68, 56, 0.08);
@@ -225,6 +246,77 @@ button {
   font-weight: 700;
 }
 
+.admin-panel {
+  margin-top: 24px;
+}
+
+.admin-panel--page {
+  margin-top: 24px;
+}
+
+.admin-badge {
+  min-width: 72px;
+  padding: 10px 14px;
+  text-align: center;
+  background: #bb5a32;
+  color: white;
+  font-weight: 700;
+}
+
+.admin-text {
+  margin: 16px 0 0;
+  color: #65554a;
+  line-height: 1.7;
+}
+
+.admin-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.admin-card {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px;
+  border-radius: 20px;
+  background: #fffdfa;
+  border: 1px solid rgba(87, 68, 56, 0.08);
+}
+
+.admin-card__media {
+  min-height: 96px;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f6d9a4, #f7eee1);
+}
+
+.admin-card__content {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-card__content h3,
+.admin-card__content p {
+  margin: 0;
+}
+
+.admin-card__content p {
+  color: #65554a;
+  line-height: 1.6;
+}
+
+.admin-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  color: #76675d;
+}
+
 .cart-list {
   display: grid;
   gap: 14px;
@@ -274,7 +366,8 @@ button {
 
   .hero,
   .catalog,
-  .cart-panel {
+  .cart-panel,
+  .admin-panel {
     padding: 24px;
   }
 }
@@ -289,9 +382,17 @@ button {
     flex-direction: column;
   }
 
+  .top-nav {
+    flex-wrap: wrap;
+  }
+
   .cart-item {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
+  }
+
+  .admin-card {
+    grid-template-columns: 1fr;
   }
 }

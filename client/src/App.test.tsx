@@ -25,6 +25,7 @@ const products = [
 describe('App', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.location.hash = '#/';
     vi.restoreAllMocks();
     vi.stubGlobal(
       'fetch',
@@ -35,14 +36,28 @@ describe('App', () => {
     );
   });
 
-  it('renderiza os produtos vindos da API', async () => {
+  it('renderiza a vitrine na home', async () => {
     render(<App />);
 
     expect(screen.getByText('Carregando produtos...')).toBeInTheDocument();
 
     await waitFor(() => {
+      expect(screen.getByText('Escolha os destaques da semana')).toBeInTheDocument();
       expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
-      expect(screen.getByText('Fone Pulse Mini')).toBeInTheDocument();
+      expect(screen.queryByText('Gerenciamento de produtos')).not.toBeInTheDocument();
+    });
+  });
+
+  it('navega para o admin e mostra a listagem de gerenciamento', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Admin' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Gerenciamento de produtos')).toBeInTheDocument();
+      expect(screen.getAllByText('Jaqueta Atlas')).toHaveLength(1);
     });
   });
 
@@ -51,7 +66,10 @@ describe('App', () => {
 
     render(<App />);
 
-    await screen.findByText('Jaqueta Atlas');
+    await waitFor(() => {
+      expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
+    });
+
     await user.click(screen.getAllByRole('button', { name: 'Adicionar' })[0]);
 
     const cartPanel = screen.getByText('Resumo do pedido').closest('aside');
