@@ -5,6 +5,7 @@ import { Hero } from './components/Hero';
 import { Admin } from './pages/Admin';
 import { Catalog } from './pages/Catalog';
 import { Categories } from './pages/Categories';
+import { Checkout } from './pages/Checkout';
 import { Home } from './pages/Home';
 import { createCategory, listCategories } from './services/categoryService';
 import { createProduct, deleteProduct, listProducts, updateProduct } from './services/productService';
@@ -21,7 +22,9 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentPage, setCurrentPage] = useState<'store' | 'catalog' | 'categories' | 'admin'>(
+  const [currentPage, setCurrentPage] = useState<
+    'store' | 'catalog' | 'categories' | 'checkout' | 'admin'
+  >(
     getCurrentRoute().page,
   );
   const [productForm, setProductForm] = useState<ProductFormState>(initialProductForm);
@@ -37,7 +40,7 @@ export default function App() {
       const route = getCurrentRoute();
       setCurrentPage(route.page);
 
-      if (route.page !== 'admin') {
+      if (route.page !== 'admin' && route.page !== 'checkout') {
         setSelectedCategory(route.category);
       }
     };
@@ -129,6 +132,10 @@ export default function App() {
         )
         .filter((item) => item.quantity > 0),
     );
+  }
+
+  function handleConfirmOrder() {
+    setCart([]);
   }
 
   function resetAdminForm() {
@@ -285,7 +292,9 @@ export default function App() {
         />
       ) : (
         <main className="content-grid">
-          {currentPage === 'categories' ? (
+          {currentPage === 'checkout' ? (
+            <Checkout cart={cart} cartTotal={cartTotal} onConfirmOrder={handleConfirmOrder} />
+          ) : currentPage === 'categories' ? (
             <Categories categories={categories} productsCountByCategory={productsCountByCategory} />
           ) : currentPage === 'catalog' ? (
             <Catalog

@@ -1,5 +1,5 @@
 type HeaderComponentProps = {
-  currentPage: 'store' | 'catalog' | 'categories' | 'admin';
+  currentPage: 'store' | 'catalog' | 'categories' | 'checkout' | 'admin';
 };
 
 export function HeaderComponent({ currentPage }: HeaderComponentProps) {

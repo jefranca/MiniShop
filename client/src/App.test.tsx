@@ -109,6 +109,18 @@ describe('App', () => {
           });
         }
 
+        if (url.includes('viacep.com.br')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              logradouro: 'Praca da Se',
+              bairro: 'Se',
+              localidade: 'Sao Paulo',
+              uf: 'SP',
+            }),
+          });
+        }
+
         if (init?.method === 'POST' && url.includes('/api/categories')) {
           return Promise.resolve({
             ok: true,
@@ -326,5 +338,95 @@ describe('App', () => {
     expect(cartScope.getByText('Jaqueta Atlas')).toBeInTheDocument();
     expect(cartScope.getByText('Subtotal')).toBeInTheDocument();
     expect(cartScope.getAllByText(/R\$\s*249,90/)).toHaveLength(2);
+  });
+
+  it('abre a pagina de checkout ao finalizar pedido', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getAllByRole('button', { name: 'Adicionar' })[0]);
+    await user.click(screen.getByRole('link', { name: 'Finalizar pedido' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Finalizar pedido' })).toBeInTheDocument();
+      expect(screen.getByText('Informacoes de entrega')).toBeInTheDocument();
+      expect(screen.getByText('Seu pedido')).toBeInTheDocument();
+      expect(screen.getAllByText('Subtotal')).toHaveLength(2);
+    });
+  });
+
+  it('calcula o frete automaticamente apos endereco completo e aplica cupom', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getAllByRole('button', { name: 'Adicionar' })[0]);
+    await user.click(screen.getByRole('link', { name: 'Finalizar pedido' }));
+
+    await user.type(screen.getByPlaceholderText('00000-000'), '01001000');
+    await waitFor(() => {
+      expect(screen.getByText('Endereco preenchido automaticamente pelo CEP.')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Praca da Se')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Se')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Sao Paulo')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('SP')).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByPlaceholderText('123'), '100');
+
+    await waitFor(() => {
+      expect(screen.getByText(/R\$\s*18,90/)).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByPlaceholderText('Ex.: MINI10'), 'MINI10');
+    await user.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Cupom MINI10 aplicado com 10% de desconto.')).toBeInTheDocument();
+      expect(screen.getByText(/R\$\s*24,99/)).toBeInTheDocument();
+    });
+  });
+
+  it('confirma o pedido no checkout e limpa o carrinho', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getAllByRole('button', { name: 'Adicionar' })[0]);
+    await user.click(screen.getByRole('link', { name: 'Finalizar pedido' }));
+
+    await user.type(screen.getByPlaceholderText('Seu nome'), 'Jefferson Franca');
+    await user.type(screen.getByPlaceholderText('voce@email.com'), 'jefferson@email.com');
+    await user.type(screen.getByPlaceholderText('00000-000'), '01001000');
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Praca da Se')).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByPlaceholderText('123'), '100');
+
+    await waitFor(() => {
+      expect(screen.getByText(/R\$\s*18,90/)).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Confirmar pedido' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Pedido confirmado.' })).toBeInTheDocument();
+      expect(screen.getByText('Seu carrinho ainda esta vazio.')).toBeInTheDocument();
+    });
   });
 });

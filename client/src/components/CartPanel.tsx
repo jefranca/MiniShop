@@ -1,3 +1,4 @@
+import { buildCheckoutHash } from '../utils/navigation';
 import { currency } from '../utils/formatters';
 import type { CartItem } from '../types/product';
 
@@ -9,6 +10,8 @@ type CartPanelProps = {
 };
 
 export function CartPanel({ cart, cartCount, cartTotal, updateQuantity }: CartPanelProps) {
+  const checkoutHref = cart.length === 0 ? '#/' : buildCheckoutHash();
+
   return (
     <aside className="cart-panel">
       <div className="section-heading">
@@ -49,9 +52,18 @@ export function CartPanel({ cart, cartCount, cartTotal, updateQuantity }: CartPa
           <span>Subtotal</span>
           <strong>{currency.format(cartTotal)}</strong>
         </div>
-        <button type="button" className="checkout-button">
+        <a
+          href={checkoutHref}
+          className={`checkout-button${cart.length === 0 ? ' is-disabled' : ''}`}
+          aria-disabled={cart.length === 0}
+          onClick={(event) => {
+            if (cart.length === 0) {
+              event.preventDefault();
+            }
+          }}
+        >
           Finalizar pedido
-        </button>
+        </a>
       </div>
     </aside>
   );

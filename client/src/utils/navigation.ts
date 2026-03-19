@@ -1,4 +1,4 @@
-export type AppPage = 'store' | 'catalog' | 'categories' | 'admin';
+export type AppPage = 'store' | 'catalog' | 'categories' | 'checkout' | 'admin';
 
 export type AppRoute = {
   page: AppPage;
@@ -27,6 +27,10 @@ export function getCurrentRoute(): AppRoute {
     return { page: 'categories', category };
   }
 
+  if (path === '#/checkout') {
+    return { page: 'checkout', category };
+  }
+
   return { page: 'store', category };
 }
 
@@ -44,4 +48,8 @@ export function buildCategoryPageHash(category: string) {
   }
 
   return `#/categories?category=${encodeURIComponent(category)}`;
+}
+
+export function buildCheckoutHash() {
+  return '#/checkout';
 }
