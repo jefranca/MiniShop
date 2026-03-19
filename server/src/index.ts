@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express from 'express';
-import { createProduct, findProductById, listProducts } from './services/productService.js';
+import { createProduct, findProductById, listProducts, updateProduct } from './services/productService.js';
 import type { ProductInput } from './types/product.js';
 
 export const app = express();
@@ -54,6 +54,38 @@ app.post('/api/products', (request, response) => {
   });
 
   response.status(201).json(product);
+});
+
+app.put('/api/products/:id', (request, response) => {
+  const productId = Number(request.params.id);
+  const { name, category, price, image, description } = request.body as Partial<ProductInput>;
+
+  if (Number.isNaN(productId)) {
+    response.status(400).json({ message: 'Product id must be a valid number.' });
+    return;
+  }
+
+  if (!name || !category || typeof price !== 'number' || !image || !description) {
+    response.status(400).json({
+      message: 'Name, category, price, image and description are required.',
+    });
+    return;
+  }
+
+  const product = updateProduct(productId, {
+    name,
+    category,
+    price,
+    image,
+    description,
+  });
+
+  if (!product) {
+    response.status(404).json({ message: 'Product not found.' });
+    return;
+  }
+
+  response.json(product);
 });
 
 if (process.env.NODE_ENV !== 'test') {

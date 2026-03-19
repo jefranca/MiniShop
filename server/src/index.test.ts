@@ -78,4 +78,36 @@ describe('MiniShop API', () => {
       message: 'Name, category, price, image and description are required.',
     });
   });
+
+  it('atualiza um produto existente', async () => {
+    const response = await request(app).put('/api/products/2').send({
+      name: 'Fone Pulse Pro',
+      category: 'Tecnologia',
+      price: 219.9,
+      image: '[headphones-pro]',
+      description: 'Versao atualizada com audio mais potente e melhor autonomia.',
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      id: 2,
+      name: 'Fone Pulse Pro',
+      price: 219.9,
+    });
+  });
+
+  it('retorna 404 ao tentar atualizar um produto inexistente', async () => {
+    const response = await request(app).put('/api/products/999').send({
+      name: 'Produto fantasma',
+      category: 'Tecnologia',
+      price: 99.9,
+      image: '[ghost]',
+      description: 'Nao deveria existir.',
+    });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      message: 'Product not found.',
+    });
+  });
 });

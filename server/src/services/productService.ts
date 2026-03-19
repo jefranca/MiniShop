@@ -23,6 +23,23 @@ export function createProduct(input: ProductInput) {
   return product;
 }
 
+export function updateProduct(productId: number, input: ProductInput) {
+  const existingProduct = findProductById(productId);
+
+  if (!existingProduct) {
+    return null;
+  }
+
+  const updatedProduct: Product = {
+    id: productId,
+    ...input,
+  };
+
+  products = products.map((product) => (product.id === productId ? updatedProduct : product));
+
+  return updatedProduct;
+}
+
 export function resetProducts() {
   products = [...productSeed];
 }
