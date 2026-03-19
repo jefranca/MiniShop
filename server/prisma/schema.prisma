@@ -19,3 +19,12 @@ model Category {
   id   Int    @id @default(autoincrement())
   name String @unique
 }
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

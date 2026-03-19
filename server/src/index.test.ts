@@ -53,6 +53,85 @@ describe('MiniShop API', () => {
     });
   });
 
+  it('cria um novo usuario com senha protegida', async () => {
+    const response = await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({
+      message: 'User created successfully.',
+      user: expect.objectContaining({
+        id: expect.any(Number),
+        name: 'Jefferson Franca',
+        email: 'jefferson@email.com',
+      }),
+    });
+    expect(response.body.user.passwordHash).toBeUndefined();
+  });
+
+  it('retorna 409 ao tentar criar usuario com email repetido', async () => {
+    await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    const response = await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    expect(response.status).toBe(409);
+    expect(response.body).toEqual({
+      message: 'User already exists with this email.',
+    });
+  });
+
+  it('faz login com credenciais validas', async () => {
+    await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    const response = await request(app).post('/api/auth/signin').send({
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: 'Sign in successful.',
+      user: expect.objectContaining({
+        id: expect.any(Number),
+        name: 'Jefferson Franca',
+        email: 'jefferson@email.com',
+      }),
+    });
+  });
+
+  it('retorna 400 ao tentar login com senha invalida', async () => {
+    await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    const response = await request(app).post('/api/auth/signin').send({
+      email: 'jefferson@email.com',
+      password: 'senha-errada',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      message: 'Invalid email or password.',
+    });
+  });
+
   it('retorna um produto especifico por id', async () => {
     const response = await request(app).get('/api/products/2');
 

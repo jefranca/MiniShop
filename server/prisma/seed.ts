@@ -3,6 +3,7 @@ import { categorySeed } from '../src/data/categories.js';
 import { productSeed } from '../src/data/products.js';
 
 async function main() {
+  await prisma.user.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.category.createMany({

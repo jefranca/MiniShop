@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import { signInController, signUpController } from './controllers/authController.js';
 import {
   createCategoryController,
   listCategoriesController,
@@ -20,6 +21,12 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/api/health', healthController);
+app.post('/api/auth/signup', (request, response, next) => {
+  void signUpController(request, response).catch(next);
+});
+app.post('/api/auth/signin', (request, response, next) => {
+  void signInController(request, response).catch(next);
+});
 app.get('/api/categories', (request, response, next) => {
   void listCategoriesController(request, response).catch(next);
 });
