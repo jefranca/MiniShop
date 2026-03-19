@@ -30,6 +30,8 @@ describe('App', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockImplementation((input, init) => {
+        const url = String(input);
+
         if (init?.method === 'POST') {
           return Promise.resolve({
             ok: true,
@@ -40,6 +42,29 @@ describe('App', () => {
               price: 129.9,
               image: 'chair',
               description: 'Cadeira compacta para ambientes leves.',
+            }),
+          });
+        }
+
+        if (init?.method === 'PUT' && url.includes('/api/products/2')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              id: 2,
+              name: 'Fone Pulse Max',
+              category: 'Tecnologia',
+              price: 219.9,
+              image: 'headphones-max',
+              description: 'Versao atualizada com mais bateria.',
+            }),
+          });
+        }
+
+        if (init?.method === 'DELETE' && url.includes('/api/products/2')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              message: 'Product deleted successfully.',
             }),
           });
         }
@@ -84,16 +109,62 @@ describe('App', () => {
 
     await user.click(screen.getByRole('link', { name: 'Admin' }));
 
-    await user.type(screen.getByLabelText('Nome'), 'Cadeira Aurora');
-    await user.selectOptions(screen.getByLabelText('Categoria'), 'Casa');
-    await user.type(screen.getByLabelText('Preco'), '129.9');
-    await user.type(screen.getByLabelText('Imagem'), 'chair');
-    await user.type(screen.getByLabelText('Descricao'), 'Cadeira compacta para ambientes leves.');
+    await user.type(screen.getByPlaceholderText('Ex.: Cadeira Aurora'), 'Cadeira Aurora');
+    await user.selectOptions(screen.getByRole('combobox'), 'Casa');
+    await user.type(screen.getByPlaceholderText('149.9'), '129.9');
+    await user.type(screen.getByPlaceholderText('[chair]'), 'chair');
+    await user.type(
+      screen.getByPlaceholderText('Descricao curta para o catalogo.'),
+      'Cadeira compacta para ambientes leves.',
+    );
     await user.click(screen.getByRole('button', { name: 'Criar produto' }));
 
     await waitFor(() => {
       expect(screen.getByText('Produto criado com sucesso.')).toBeInTheDocument();
       expect(screen.getByText('Cadeira Aurora')).toBeInTheDocument();
+    });
+  });
+
+  it('edita um produto pelo admin', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Admin' }));
+    await user.click(screen.getAllByRole('button', { name: 'Editar' })[1]);
+
+    const nameInput = screen.getByPlaceholderText('Ex.: Cadeira Aurora');
+    const priceInput = screen.getByPlaceholderText('149.9');
+    const imageInput = screen.getByPlaceholderText('[chair]');
+    const descriptionInput = screen.getByPlaceholderText('Descricao curta para o catalogo.');
+
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Fone Pulse Max');
+    await user.clear(priceInput);
+    await user.type(priceInput, '219.9');
+    await user.clear(imageInput);
+    await user.type(imageInput, 'headphones-max');
+    await user.clear(descriptionInput);
+    await user.type(descriptionInput, 'Versao atualizada com mais bateria.');
+    await user.click(screen.getByRole('button', { name: 'Salvar alteracoes' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Produto atualizado com sucesso.')).toBeInTheDocument();
+      expect(screen.getByText('Fone Pulse Max')).toBeInTheDocument();
+    });
+  });
+
+  it('remove um produto pelo admin', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Admin' }));
+    await user.click(screen.getAllByRole('button', { name: 'Excluir' })[1]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Produto removido com sucesso.')).toBeInTheDocument();
+      expect(screen.queryByText('Fone Pulse Mini')).not.toBeInTheDocument();
     });
   });
 

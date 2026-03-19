@@ -305,6 +305,13 @@ button {
   font: inherit;
 }
 
+.admin-actions,
+.admin-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .admin-list {
   display: grid;
   gap: 14px;
@@ -351,6 +358,21 @@ button {
   align-items: center;
   gap: 16px;
   color: #76675d;
+}
+
+.secondary-button,
+.danger-button {
+  border: 1px solid rgba(33, 29, 27, 0.12);
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: #fffaf3;
+  color: #473932;
+}
+
+.danger-button {
+  border-color: rgba(143, 45, 45, 0.18);
+  color: #8f2d2d;
+  background: #fff3f1;
 }
 
 .cart-list {

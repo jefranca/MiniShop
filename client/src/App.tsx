@@ -40,6 +40,16 @@ function getCurrentPage() {
   return window.location.hash === '#/admin' ? 'admin' : 'store';
 }
 
+function mapProductToForm(product: Product): ProductFormState {
+  return {
+    name: product.name,
+    category: product.category,
+    price: String(product.price),
+    image: product.image,
+    description: product.description,
+  };
+}
+
 export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -50,6 +60,7 @@ export default function App() {
   const [productForm, setProductForm] = useState<ProductFormState>(initialProductForm);
   const [adminMessage, setAdminMessage] = useState('');
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
 
   useEffect(() => {
     const syncPage = () => {
@@ -131,7 +142,12 @@ export default function App() {
     );
   }
 
-  async function handleCreateProduct(event: FormEvent<HTMLFormElement>) {
+  function resetAdminForm() {
+    setProductForm(initialProductForm);
+    setEditingProductId(null);
+  }
+
+  async function handleCreateOrUpdateProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAdminMessage('');
 
@@ -151,34 +167,79 @@ export default function App() {
     try {
       setIsSubmittingProduct(true);
 
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const isEditing = editingProductId !== null;
+      const response = await fetch(
+        isEditing ? `/api/products/${editingProductId}` : '/api/products',
+        {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: productForm.name,
+            category: productForm.category,
+            price,
+            image: productForm.image,
+            description: productForm.description,
+          }),
         },
-        body: JSON.stringify({
-          name: productForm.name,
-          category: productForm.category,
-          price,
-          image: productForm.image,
-          description: productForm.description,
-        }),
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Nao foi possivel criar o produto.');
+        throw new Error(
+          isEditing ? 'Nao foi possivel atualizar o produto.' : 'Nao foi possivel criar o produto.',
+        );
       }
 
-      const createdProduct = (await response.json()) as Product;
-      setProducts((currentProducts) => [...currentProducts, createdProduct]);
-      setProductForm(initialProductForm);
-      setAdminMessage('Produto criado com sucesso.');
+      const savedProduct = (await response.json()) as Product;
+
+      if (isEditing) {
+        setProducts((currentProducts) =>
+          currentProducts.map((product) => (product.id === savedProduct.id ? savedProduct : product)),
+        );
+        setAdminMessage('Produto atualizado com sucesso.');
+      } else {
+        setProducts((currentProducts) => [...currentProducts, savedProduct]);
+        setAdminMessage('Produto criado com sucesso.');
+      }
+
+      resetAdminForm();
     } catch (submitError) {
       const message =
-        submitError instanceof Error ? submitError.message : 'Erro inesperado ao criar produto.';
+        submitError instanceof Error
+          ? submitError.message
+          : 'Erro inesperado ao salvar produto.';
       setAdminMessage(message);
     } finally {
       setIsSubmittingProduct(false);
+    }
+  }
+
+  async function handleDeleteProduct(productId: number) {
+    setAdminMessage('');
+
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Nao foi possivel remover o produto.');
+      }
+
+      setProducts((currentProducts) => currentProducts.filter((product) => product.id !== productId));
+
+      if (editingProductId === productId) {
+        resetAdminForm();
+      }
+
+      setAdminMessage('Produto removido com sucesso.');
+    } catch (deleteError) {
+      const message =
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Erro inesperado ao remover produto.';
+      setAdminMessage(message);
     }
   }
 
@@ -233,11 +294,13 @@ export default function App() {
           </p>
 
           <div className="admin-grid">
-            <form className="admin-form" onSubmit={handleCreateProduct}>
+            <form className="admin-form" onSubmit={handleCreateOrUpdateProduct}>
               <div className="section-heading">
                 <div>
-                  <p className="section-label">Novo produto</p>
-                  <h2>Cadastrar item</h2>
+                  <p className="section-label">
+                    {editingProductId !== null ? 'Editar produto' : 'Novo produto'}
+                  </p>
+                  <h2>{editingProductId !== null ? 'Atualizar item' : 'Cadastrar item'}</h2>
                 </div>
               </div>
 
@@ -306,9 +369,21 @@ export default function App() {
 
               {adminMessage ? <p className="status-message">{adminMessage}</p> : null}
 
-              <button type="submit" className="checkout-button" disabled={isSubmittingProduct}>
-                {isSubmittingProduct ? 'Salvando...' : 'Criar produto'}
-              </button>
+              <div className="admin-actions">
+                <button type="submit" className="checkout-button" disabled={isSubmittingProduct}>
+                  {isSubmittingProduct
+                    ? 'Salvando...'
+                    : editingProductId !== null
+                      ? 'Salvar alteracoes'
+                      : 'Criar produto'}
+                </button>
+
+                {editingProductId !== null ? (
+                  <button type="button" className="secondary-button" onClick={resetAdminForm}>
+                    Cancelar edicao
+                  </button>
+                ) : null}
+              </div>
             </form>
 
             <div>
@@ -332,6 +407,27 @@ export default function App() {
                       <div className="admin-card__meta">
                         <strong>{currency.format(product.price)}</strong>
                         <span>ID #{product.id}</span>
+                      </div>
+
+                      <div className="admin-card__actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => {
+                            setEditingProductId(product.id);
+                            setProductForm(mapProductToForm(product));
+                            setAdminMessage('');
+                          }}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="danger-button"
+                          onClick={() => handleDeleteProduct(product.id)}
+                        >
+                          Excluir
+                        </button>
                       </div>
                     </div>
                   </article>
