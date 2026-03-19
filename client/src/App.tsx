@@ -1,12 +1,15 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { CartPanel } from './components/CartPanel';
+import { HeaderComponent } from './components/HeaderComponent';
 import { Hero } from './components/Hero';
-import { TopNav } from './components/TopNav';
-import { AdminPage } from './features/admin/AdminPage';
-import { mapProductToForm } from './features/admin/adminUtils';
-import { CartPanel } from './features/cart/CartPanel';
-import { categories, getCurrentPage, initialProductForm } from './features/shared/constants';
-import { StorePage } from './features/store/StorePage';
+import { Admin } from './pages/Admin';
+import { Home } from './pages/Home';
+import { createProduct, deleteProduct, listProducts, updateProduct } from './services/productService';
 import type { CartItem, Product, ProductFormState } from './types/product';
+import { categories, initialProductForm } from './utils/constants';
+import { getCurrentPage } from './utils/navigation';
+import { mapProductToForm } from './utils/productForm';
+import { loadCart, saveCart } from './utils/localStorage';
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,26 +33,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const savedCart = window.localStorage.getItem('minishop-cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
+    setCart(loadCart());
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem('minishop-cart', JSON.stringify(cart));
+    saveCart(cart);
   }, [cart]);
 
   useEffect(() => {
     async function loadProducts() {
       try {
         setLoading(true);
-        const response = await fetch('/api/products');
-        if (!response.ok) {
-          throw new Error('Falha ao buscar produtos.');
-        }
-
-        const data = (await response.json()) as Product[];
+        const data = await listProducts();
         setProducts(data);
       } catch (fetchError) {
         const message =
@@ -130,32 +125,17 @@ export default function App() {
 
     try {
       setIsSubmittingProduct(true);
-
       const isEditing = editingProductId !== null;
-      const response = await fetch(
-        isEditing ? `/api/products/${editingProductId}` : '/api/products',
-        {
-          method: isEditing ? 'PUT' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: productForm.name,
-            category: productForm.category,
-            price,
-            image: productForm.image,
-            description: productForm.description,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          isEditing ? 'Nao foi possivel atualizar o produto.' : 'Nao foi possivel criar o produto.',
-        );
-      }
-
-      const savedProduct = (await response.json()) as Product;
+      const productPayload = {
+        name: productForm.name,
+        category: productForm.category,
+        price,
+        image: productForm.image,
+        description: productForm.description,
+      };
+      const savedProduct = isEditing
+        ? await updateProduct(editingProductId, productPayload)
+        : await createProduct(productPayload);
 
       if (isEditing) {
         setProducts((currentProducts) =>
@@ -183,13 +163,7 @@ export default function App() {
     setAdminMessage('');
 
     try {
-      const response = await fetch(`/api/products/${productId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Nao foi possivel remover o produto.');
-      }
+      await deleteProduct(productId);
 
       setProducts((currentProducts) => currentProducts.filter((product) => product.id !== productId));
 
@@ -210,7 +184,7 @@ export default function App() {
   return (
     <div className="page-shell">
       <header className="hero">
-        <TopNav currentPage={currentPage} />
+        <HeaderComponent currentPage={currentPage} />
         <Hero
           currentPage={currentPage}
           productCount={products.length}
@@ -220,7 +194,7 @@ export default function App() {
       </header>
 
       {currentPage === 'admin' ? (
-        <AdminPage
+        <Admin
           products={products}
           loading={loading}
           error={error}
@@ -236,7 +210,7 @@ export default function App() {
         />
       ) : (
         <main className="content-grid">
-          <StorePage
+          <Home
             filteredProducts={filteredProducts}
             loading={loading}
             error={error}

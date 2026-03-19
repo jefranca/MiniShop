@@ -1,8 +1,8 @@
-import { currency } from '../shared/formatters';
-import { categories } from '../shared/constants';
-import type { Product } from '../../types/product';
+import type { Product } from '../types/product';
+import { currency } from '../utils/formatters';
+import { categories } from '../utils/constants';
 
-type StorePageProps = {
+type HomeProps = {
   filteredProducts: Product[];
   loading: boolean;
   error: string;
@@ -11,14 +11,14 @@ type StorePageProps = {
   addToCart: (product: Product) => void;
 };
 
-export function StorePage({
+export function Home({
   filteredProducts,
   loading,
   error,
   selectedCategory,
   setSelectedCategory,
   addToCart,
-}: StorePageProps) {
+}: HomeProps) {
   return (
     <section className="catalog">
       <div className="section-heading">

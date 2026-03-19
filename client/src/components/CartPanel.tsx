@@ -1,5 +1,5 @@
-import { currency } from '../shared/formatters';
-import type { CartItem } from '../../types/product';
+import { currency } from '../utils/formatters';
+import type { CartItem } from '../types/product';
 
 type CartPanelProps = {
   cart: CartItem[];

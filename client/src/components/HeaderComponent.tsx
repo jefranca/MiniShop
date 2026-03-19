@@ -1,8 +1,8 @@
-type TopNavProps = {
+type HeaderComponentProps = {
   currentPage: 'store' | 'admin';
 };
 
-export function TopNav({ currentPage }: TopNavProps) {
+export function HeaderComponent({ currentPage }: HeaderComponentProps) {
   return (
     <nav className="top-nav" aria-label="Principal">
       <a

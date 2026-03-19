@@ -1,9 +1,9 @@
 import type { FormEvent } from 'react';
-import { currency } from '../shared/formatters';
-import { categories } from '../shared/constants';
-import type { Product, ProductFormState } from '../../types/product';
+import type { Product, ProductFormState } from '../types/product';
+import { currency } from '../utils/formatters';
+import { categories } from '../utils/constants';
 
-type AdminPageProps = {
+type AdminProps = {
   products: Product[];
   loading: boolean;
   error: string;
@@ -18,7 +18,7 @@ type AdminPageProps = {
   resetAdminForm: () => void;
 };
 
-export function AdminPage({
+export function Admin({
   products,
   loading,
   error,
@@ -31,7 +31,7 @@ export function AdminPage({
   handleDeleteProduct,
   startEditingProduct,
   resetAdminForm,
-}: AdminPageProps) {
+}: AdminProps) {
   return (
     <section className="admin-panel admin-panel--page">
       <div className="section-heading">

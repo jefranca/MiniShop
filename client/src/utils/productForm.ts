@@ -1,4 +1,4 @@
-import type { Product, ProductFormState } from '../../types/product';
+import type { Product, ProductFormState } from '../types/product';
 
 export function mapProductToForm(product: Product): ProductFormState {
   return {
