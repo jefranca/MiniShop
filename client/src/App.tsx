@@ -1,10 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 type Product = {
   id: number;
   name: string;
   category: string;
   price: number;
+  image: string;
+  description: string;
+};
+
+type ProductFormState = {
+  name: string;
+  category: string;
+  price: string;
   image: string;
   description: string;
 };
@@ -20,6 +28,14 @@ const currency = new Intl.NumberFormat('pt-BR', {
 
 const categories = ['Todos', 'Moda', 'Tecnologia', 'Casa'];
 
+const initialProductForm: ProductFormState = {
+  name: '',
+  category: 'Moda',
+  price: '',
+  image: '',
+  description: '',
+};
+
 function getCurrentPage() {
   return window.location.hash === '#/admin' ? 'admin' : 'store';
 }
@@ -31,6 +47,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState<'store' | 'admin'>(getCurrentPage);
+  const [productForm, setProductForm] = useState<ProductFormState>(initialProductForm);
+  const [adminMessage, setAdminMessage] = useState('');
+  const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
 
   useEffect(() => {
     const syncPage = () => {
@@ -112,6 +131,57 @@ export default function App() {
     );
   }
 
+  async function handleCreateProduct(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setAdminMessage('');
+
+    const price = Number(productForm.price);
+
+    if (
+      !productForm.name ||
+      !productForm.category ||
+      !productForm.image ||
+      !productForm.description ||
+      Number.isNaN(price)
+    ) {
+      setAdminMessage('Preencha todos os campos do produto antes de salvar.');
+      return;
+    }
+
+    try {
+      setIsSubmittingProduct(true);
+
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: productForm.name,
+          category: productForm.category,
+          price,
+          image: productForm.image,
+          description: productForm.description,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Nao foi possivel criar o produto.');
+      }
+
+      const createdProduct = (await response.json()) as Product;
+      setProducts((currentProducts) => [...currentProducts, createdProduct]);
+      setProductForm(initialProductForm);
+      setAdminMessage('Produto criado com sucesso.');
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error ? submitError.message : 'Erro inesperado ao criar produto.';
+      setAdminMessage(message);
+    } finally {
+      setIsSubmittingProduct(false);
+    }
+  }
+
   return (
     <div className="page-shell">
       <header className="hero">
@@ -162,30 +232,112 @@ export default function App() {
             Esta area sera a base do painel da MiniShop para criar, editar e remover produtos.
           </p>
 
-          {loading ? <p className="status-message">Carregando painel...</p> : null}
-          {error ? <p className="status-message status-message--error">{error}</p> : null}
-
-          <div className="admin-list">
-            {products.map((product) => (
-              <article key={product.id} className="admin-card">
-                <div className="admin-card__media" aria-hidden="true">
-                  {product.image}
+          <div className="admin-grid">
+            <form className="admin-form" onSubmit={handleCreateProduct}>
+              <div className="section-heading">
+                <div>
+                  <p className="section-label">Novo produto</p>
+                  <h2>Cadastrar item</h2>
                 </div>
+              </div>
 
-                <div className="admin-card__content">
-                  <div>
-                    <p className="section-label">{product.category}</p>
-                    <h3>{product.name}</h3>
-                    <p>{product.description}</p>
-                  </div>
+              <label className="admin-field">
+                <span>Nome</span>
+                <input
+                  value={productForm.name}
+                  onChange={(event) =>
+                    setProductForm((current) => ({ ...current, name: event.target.value }))
+                  }
+                  placeholder="Ex.: Cadeira Aurora"
+                />
+              </label>
 
-                  <div className="admin-card__meta">
-                    <strong>{currency.format(product.price)}</strong>
-                    <span>ID #{product.id}</span>
-                  </div>
-                </div>
-              </article>
-            ))}
+              <label className="admin-field">
+                <span>Categoria</span>
+                <select
+                  value={productForm.category}
+                  onChange={(event) =>
+                    setProductForm((current) => ({ ...current, category: event.target.value }))
+                  }
+                >
+                  {categories
+                    .filter((category) => category !== 'Todos')
+                    .map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                </select>
+              </label>
+
+              <label className="admin-field">
+                <span>Preco</span>
+                <input
+                  value={productForm.price}
+                  onChange={(event) =>
+                    setProductForm((current) => ({ ...current, price: event.target.value }))
+                  }
+                  placeholder="149.9"
+                />
+              </label>
+
+              <label className="admin-field">
+                <span>Imagem</span>
+                <input
+                  value={productForm.image}
+                  onChange={(event) =>
+                    setProductForm((current) => ({ ...current, image: event.target.value }))
+                  }
+                  placeholder="[chair]"
+                />
+              </label>
+
+              <label className="admin-field">
+                <span>Descricao</span>
+                <textarea
+                  value={productForm.description}
+                  onChange={(event) =>
+                    setProductForm((current) => ({ ...current, description: event.target.value }))
+                  }
+                  placeholder="Descricao curta para o catalogo."
+                  rows={4}
+                />
+              </label>
+
+              {adminMessage ? <p className="status-message">{adminMessage}</p> : null}
+
+              <button type="submit" className="checkout-button" disabled={isSubmittingProduct}>
+                {isSubmittingProduct ? 'Salvando...' : 'Criar produto'}
+              </button>
+            </form>
+
+            <div>
+              {loading ? <p className="status-message">Carregando painel...</p> : null}
+              {error ? <p className="status-message status-message--error">{error}</p> : null}
+
+              <div className="admin-list">
+                {products.map((product) => (
+                  <article key={product.id} className="admin-card">
+                    <div className="admin-card__media" aria-hidden="true">
+                      {product.image}
+                    </div>
+
+                    <div className="admin-card__content">
+                      <div>
+                        <p className="section-label">{product.category}</p>
+                        <h3>{product.name}</h3>
+                        <p>{product.description}</p>
+                      </div>
+
+                      <div className="admin-card__meta">
+                        <strong>{currency.format(product.price)}</strong>
+                        <span>ID #{product.id}</span>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       ) : (

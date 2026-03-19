@@ -29,9 +29,25 @@ describe('App', () => {
     vi.restoreAllMocks();
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => products,
+      vi.fn().mockImplementation((input, init) => {
+        if (init?.method === 'POST') {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              id: 3,
+              name: 'Cadeira Aurora',
+              category: 'Casa',
+              price: 129.9,
+              image: 'chair',
+              description: 'Cadeira compacta para ambientes leves.',
+            }),
+          });
+        }
+
+        return Promise.resolve({
+          ok: true,
+          json: async () => products,
+        });
       }),
     );
   });
@@ -58,6 +74,26 @@ describe('App', () => {
     await waitFor(() => {
       expect(screen.getByText('Gerenciamento de produtos')).toBeInTheDocument();
       expect(screen.getAllByText('Jaqueta Atlas')).toHaveLength(1);
+    });
+  });
+
+  it('cria um produto pelo admin e atualiza a lista', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Admin' }));
+
+    await user.type(screen.getByLabelText('Nome'), 'Cadeira Aurora');
+    await user.selectOptions(screen.getByLabelText('Categoria'), 'Casa');
+    await user.type(screen.getByLabelText('Preco'), '129.9');
+    await user.type(screen.getByLabelText('Imagem'), 'chair');
+    await user.type(screen.getByLabelText('Descricao'), 'Cadeira compacta para ambientes leves.');
+    await user.click(screen.getByRole('button', { name: 'Criar produto' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Produto criado com sucesso.')).toBeInTheDocument();
+      expect(screen.getByText('Cadeira Aurora')).toBeInTheDocument();
     });
   });
 
