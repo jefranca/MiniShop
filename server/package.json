@@ -7,9 +7,13 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "prisma:studio": "prisma studio --schema prisma/schema.prisma"
   },
   "dependencies": {
+    "@prisma/client": "^7.5.0",
     "cors": "^2.8.5",
     "express": "^4.21.1"
   },
@@ -18,6 +22,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.8.1",
     "@types/supertest": "^6.0.3",
+    "prisma": "^7.5.0",
     "supertest": "^7.0.0",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3",
