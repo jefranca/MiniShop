@@ -60,32 +60,6 @@ export function Admin({
 
       <div className="admin-grid">
         <div className="admin-stack">
-          <form className="admin-form" onSubmit={handleCreateCategory}>
-            <div className="section-heading">
-              <div>
-                <p className="section-label">Nova categoria</p>
-                <h2>Criar categoria</h2>
-              </div>
-            </div>
-
-            <label className="admin-field">
-              <span>Nome da categoria</span>
-              <input
-                value={categoryForm}
-                onChange={(event) => setCategoryForm(event.target.value)}
-                placeholder="Ex.: Acessorios"
-              />
-            </label>
-
-            {categoryMessage ? <p className="status-message">{categoryMessage}</p> : null}
-
-            <div className="admin-actions">
-              <button type="submit" className="checkout-button" disabled={isSubmittingCategory}>
-                {isSubmittingCategory ? 'Criando...' : 'Criar categoria'}
-              </button>
-            </div>
-          </form>
-
           <form className="admin-form" onSubmit={handleCreateOrUpdateProduct}>
             <div className="section-heading">
               <div>
@@ -174,6 +148,32 @@ export function Admin({
                   Cancelar edicao
                 </button>
               ) : null}
+            </div>
+          </form>
+
+          <form className="admin-form" onSubmit={handleCreateCategory}>
+            <div className="section-heading">
+              <div>
+                <p className="section-label">Nova categoria</p>
+                <h2>Criar categoria</h2>
+              </div>
+            </div>
+
+            <label className="admin-field">
+              <span>Nome da categoria</span>
+              <input
+                value={categoryForm}
+                onChange={(event) => setCategoryForm(event.target.value)}
+                placeholder="Ex.: Acessorios"
+              />
+            </label>
+
+            {categoryMessage ? <p className="status-message">{categoryMessage}</p> : null}
+
+            <div className="admin-actions">
+              <button type="submit" className="checkout-button" disabled={isSubmittingCategory}>
+                {isSubmittingCategory ? 'Criando...' : 'Criar categoria'}
+              </button>
             </div>
           </form>
         </div>
