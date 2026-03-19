@@ -20,7 +20,9 @@ app.get('/api/health', (_request, response) => {
 });
 
 app.get('/api/products', (_request, response) => {
-  response.json(listProducts());
+  void listProducts().then((products) => {
+    response.json(products);
+  });
 });
 
 app.get('/api/products/:id', (request, response) => {
@@ -31,14 +33,14 @@ app.get('/api/products/:id', (request, response) => {
     return;
   }
 
-  const product = findProductById(productId);
+  void findProductById(productId).then((product) => {
+    if (!product) {
+      response.status(404).json({ message: 'Product not found.' });
+      return;
+    }
 
-  if (!product) {
-    response.status(404).json({ message: 'Product not found.' });
-    return;
-  }
-
-  response.json(product);
+    response.json(product);
+  });
 });
 
 app.post('/api/products', (request, response) => {
@@ -51,15 +53,15 @@ app.post('/api/products', (request, response) => {
     return;
   }
 
-  const product = createProduct({
+  void createProduct({
     name,
     category,
     price,
     image,
     description,
+  }).then((product) => {
+    response.status(201).json(product);
   });
-
-  response.status(201).json(product);
 });
 
 app.put('/api/products/:id', (request, response) => {
@@ -78,20 +80,20 @@ app.put('/api/products/:id', (request, response) => {
     return;
   }
 
-  const product = updateProduct(productId, {
+  void updateProduct(productId, {
     name,
     category,
     price,
     image,
     description,
+  }).then((product) => {
+    if (!product) {
+      response.status(404).json({ message: 'Product not found.' });
+      return;
+    }
+
+    response.json(product);
   });
-
-  if (!product) {
-    response.status(404).json({ message: 'Product not found.' });
-    return;
-  }
-
-  response.json(product);
 });
 
 app.delete('/api/products/:id', (request, response) => {
@@ -102,16 +104,16 @@ app.delete('/api/products/:id', (request, response) => {
     return;
   }
 
-  const product = deleteProduct(productId);
+  void deleteProduct(productId).then((product) => {
+    if (!product) {
+      response.status(404).json({ message: 'Product not found.' });
+      return;
+    }
 
-  if (!product) {
-    response.status(404).json({ message: 'Product not found.' });
-    return;
-  }
-
-  response.json({
-    message: 'Product deleted successfully.',
-    product,
+    response.json({
+      message: 'Product deleted successfully.',
+      product,
+    });
   });
 });
 

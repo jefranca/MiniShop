@@ -1,57 +1,63 @@
 import { productSeed } from '../data/products.js';
+import { prisma } from '../lib/prisma.js';
 import type { Product, ProductInput } from '../types/product.js';
 
-let products: Product[] = [...productSeed];
-
 export function listProducts() {
-  return products;
+  return prisma.product.findMany({
+    orderBy: {
+      id: 'asc',
+    },
+  }) as Promise<Product[]>;
 }
 
 export function findProductById(productId: number) {
-  return products.find((product) => product.id === productId) ?? null;
+  return prisma.product.findUnique({
+    where: {
+      id: productId,
+    },
+  }) as Promise<Product | null>;
 }
 
 export function createProduct(input: ProductInput) {
-  const nextId = products.length === 0 ? 1 : Math.max(...products.map((product) => product.id)) + 1;
-  const product: Product = {
-    id: nextId,
-    ...input,
-  };
-
-  products = [...products, product];
-
-  return product;
+  return prisma.product.create({
+    data: input,
+  }) as Promise<Product>;
 }
 
-export function updateProduct(productId: number, input: ProductInput) {
-  const existingProduct = findProductById(productId);
+export async function updateProduct(productId: number, input: ProductInput) {
+  const existingProduct = await findProductById(productId);
 
   if (!existingProduct) {
     return null;
   }
 
-  const updatedProduct: Product = {
-    id: productId,
-    ...input,
-  };
-
-  products = products.map((product) => (product.id === productId ? updatedProduct : product));
-
-  return updatedProduct;
+  return (await prisma.product.update({
+    where: {
+      id: productId,
+    },
+    data: input,
+  })) as Product;
 }
 
-export function deleteProduct(productId: number) {
-  const existingProduct = findProductById(productId);
+export async function deleteProduct(productId: number) {
+  const existingProduct = await findProductById(productId);
 
   if (!existingProduct) {
     return null;
   }
 
-  products = products.filter((product) => product.id !== productId);
+  await prisma.product.delete({
+    where: {
+      id: productId,
+    },
+  });
 
   return existingProduct;
 }
 
-export function resetProducts() {
-  products = [...productSeed];
+export async function resetProducts() {
+  await prisma.product.deleteMany();
+  await prisma.product.createMany({
+    data: productSeed,
+  });
 }
