@@ -29,4 +29,24 @@ describe('MiniShop API', () => {
       category: 'Moda',
     });
   });
+
+  it('retorna um produto especifico por id', async () => {
+    const response = await request(app).get('/api/products/2');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      id: 2,
+      name: 'Fone Pulse Mini',
+      category: 'Tecnologia',
+    });
+  });
+
+  it('retorna 404 quando o produto nao existe', async () => {
+    const response = await request(app).get('/api/products/999');
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      message: 'Product not found.',
+    });
+  });
 });

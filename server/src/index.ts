@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express from 'express';
-import { listProducts } from './services/productService.js';
+import { findProductById, listProducts } from './services/productService.js';
 
 export const app = express();
 const port = Number(process.env.PORT ?? 3333);
@@ -14,6 +14,24 @@ app.get('/api/health', (_request, response) => {
 
 app.get('/api/products', (_request, response) => {
   response.json(listProducts());
+});
+
+app.get('/api/products/:id', (request, response) => {
+  const productId = Number(request.params.id);
+
+  if (Number.isNaN(productId)) {
+    response.status(400).json({ message: 'Product id must be a valid number.' });
+    return;
+  }
+
+  const product = findProductById(productId);
+
+  if (!product) {
+    response.status(404).json({ message: 'Product not found.' });
+    return;
+  }
+
+  response.json(product);
 });
 
 if (process.env.NODE_ENV !== 'test') {
