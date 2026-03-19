@@ -541,6 +541,7 @@ button {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
   gap: 20px;
+  align-items: start;
 }
 
 .checkout-inline-fields {
@@ -558,6 +559,11 @@ button {
   border-radius: 20px;
   background: #fffdfa;
   border: 1px solid rgba(87, 68, 56, 0.08);
+}
+
+.checkout-summary-card {
+  align-self: start;
+  align-content: start;
 }
 
 .checkout-shipping-box,
@@ -599,6 +605,7 @@ button {
 .checkout-items {
   display: grid;
   gap: 12px;
+  align-content: start;
 }
 
 .checkout-item,
