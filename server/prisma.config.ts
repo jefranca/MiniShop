@@ -8,4 +8,7 @@ export default defineConfig({
   datasource: {
     url: `file:${databasePath}`,
   },
+  migrations: {
+    seed: 'npm run prisma:seed',
+  },
 });

@@ -61,11 +61,11 @@ describe('MiniShop API', () => {
 
     expect(response.status).toBe(201);
     expect(response.body).toMatchObject({
-      id: 7,
       name: 'Mesa Lume',
       category: 'Casa',
       price: 349.9,
     });
+    expect(response.body.id).toBeTypeOf('number');
   });
 
   it('retorna 400 ao tentar criar produto com payload incompleto', async () => {
