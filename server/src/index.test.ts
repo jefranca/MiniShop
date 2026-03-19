@@ -1,8 +1,13 @@
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { app } from './index';
+import { resetProducts } from './services/productService';
 
 describe('MiniShop API', () => {
+  beforeEach(() => {
+    resetProducts();
+  });
+
   it('retorna status de saude da API', async () => {
     const response = await request(app).get('/api/health');
 
