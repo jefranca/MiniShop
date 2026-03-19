@@ -1,7 +1,12 @@
 import { FormEvent, useState } from 'react';
 import { signIn } from '../services/authService';
+import type { AuthUser } from '../types/user';
 
-export function SignIn() {
+type SignInProps = {
+  onSignedIn: (user: AuthUser) => void;
+};
+
+export function SignIn({ onSignedIn }: SignInProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -22,7 +27,7 @@ export function SignIn() {
         email: email.trim(),
         password,
       });
-      setMessage(`Bem-vindo de volta, ${response.user.name}.`);
+      onSignedIn(response.user);
       window.location.hash = '#/';
     } catch (submitError) {
       setMessage(submitError instanceof Error ? submitError.message : 'Erro inesperado ao entrar.');

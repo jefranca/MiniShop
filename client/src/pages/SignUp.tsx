@@ -1,7 +1,12 @@
 import { FormEvent, useState } from 'react';
 import { signUp } from '../services/authService';
+import type { AuthUser } from '../types/user';
 
-export function SignUp() {
+type SignUpProps = {
+  onSignedUp: (user: AuthUser) => void;
+};
+
+export function SignUp({ onSignedUp }: SignUpProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +35,7 @@ export function SignUp() {
         email: email.trim(),
         password,
       });
-      setMessage(`${response.user.name}, sua conta foi criada com sucesso.`);
+      onSignedUp(response.user);
       window.location.hash = '#/signin';
     } catch (submitError) {
       setMessage(

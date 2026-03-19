@@ -4,6 +4,7 @@ export type AppPage =
   | 'categories'
   | 'checkout'
   | 'order-success'
+  | 'profile'
   | 'signin'
   | 'signup'
   | 'admin';
@@ -43,6 +44,10 @@ export function getCurrentRoute(): AppRoute {
     return { page: 'order-success', category };
   }
 
+  if (path === '#/profile') {
+    return { page: 'profile', category };
+  }
+
   if (path === '#/signin') {
     return { page: 'signin', category };
   }
@@ -76,6 +81,10 @@ export function buildCheckoutHash() {
 
 export function buildOrderSuccessHash() {
   return '#/order-success';
+}
+
+export function buildProfileHash() {
+  return '#/profile';
 }
 
 export function buildSignInHash() {

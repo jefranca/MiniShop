@@ -1,14 +1,17 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import type { OrderPayload } from '../types/order';
 import { currency } from '../utils/formatters';
 import type { CartItem } from '../types/product';
+import type { AuthUser } from '../types/user';
 
 type CheckoutProps = {
   cart: CartItem[];
   cartTotal: number;
-  onConfirmOrder: () => void;
+  currentUser: AuthUser | null;
+  onConfirmOrder: (payload: OrderPayload) => Promise<void>;
 };
 
-export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
+export function Checkout({ cart, cartTotal, currentUser, onConfirmOrder }: CheckoutProps) {
   const [customerName, setCustomerName] = useState('');
   const [email, setEmail] = useState('');
   const [cep, setCep] = useState('');
@@ -25,6 +28,7 @@ export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
   const [couponMessage, setCouponMessage] = useState('');
   const [discount, setDiscount] = useState(0);
   const [checkoutMessage, setCheckoutMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isAddressComplete =
     cep.trim().length >= 8 &&
@@ -109,6 +113,15 @@ export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
     };
   }, [cep]);
 
+  useEffect(() => {
+    if (!currentUser) {
+      return;
+    }
+
+    setCustomerName((current) => current || currentUser.name);
+    setEmail((current) => current || currentUser.email);
+  }, [currentUser]);
+
   const total = useMemo(() => cartTotal + (shipping ?? 0) - discount, [cartTotal, shipping, discount]);
 
   function handleApplyCoupon(event: FormEvent<HTMLFormElement>) {
@@ -143,7 +156,13 @@ export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
     setCouponMessage('Cupom invalido para este checkout.');
   }
 
-  function handleConfirmOrder() {
+  async function handleConfirmOrder() {
+    if (!currentUser) {
+      setCheckoutMessage('Entre na sua conta para salvar a compra no seu perfil.');
+      window.location.hash = '#/signin';
+      return;
+    }
+
     if (!customerName.trim() || !email.trim()) {
       setCheckoutMessage('Preencha nome e e-mail antes de confirmar o pedido.');
       return;
@@ -154,7 +173,30 @@ export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
       return;
     }
 
-    onConfirmOrder();
+    try {
+      setIsSubmitting(true);
+      await onConfirmOrder({
+        userId: currentUser.id,
+        customerName: customerName.trim(),
+        email: email.trim(),
+        cep: cep.trim(),
+        street: street.trim(),
+        number: number.trim(),
+        neighborhood: neighborhood.trim(),
+        city: city.trim(),
+        state: state.trim(),
+        paymentMethod,
+        subtotal: cartTotal,
+        shipping,
+        discount,
+        total,
+        items: cart,
+      });
+    } catch (error) {
+      setCheckoutMessage(error instanceof Error ? error.message : 'Erro ao confirmar pedido.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -274,8 +316,13 @@ export function Checkout({ cart, cartTotal, onConfirmOrder }: CheckoutProps) {
 
             {checkoutMessage ? <p className="checkout-helper">{checkoutMessage}</p> : null}
 
-            <button type="button" className="checkout-button" onClick={handleConfirmOrder}>
-              Confirmar pedido
+            <button
+              type="button"
+              className="checkout-button"
+              onClick={() => void handleConfirmOrder()}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Confirmando...' : 'Confirmar pedido'}
             </button>
           </form>
 

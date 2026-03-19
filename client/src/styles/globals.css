@@ -60,6 +60,14 @@ button {
   text-decoration: none;
 }
 
+.top-nav__button {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 247, 238, 0.78);
+}
+
 .top-nav__link.is-active {
   background: #fff7ee;
   color: #1b2a41;
@@ -592,6 +600,53 @@ button {
   text-decoration: none;
 }
 
+.auth-layout--wide {
+  grid-template-columns: minmax(0, 960px);
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.profile-stat,
+.profile-order-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: #fffdfa;
+  border: 1px solid rgba(87, 68, 56, 0.08);
+}
+
+.profile-stat span,
+.profile-order-item span {
+  color: #65554a;
+}
+
+.profile-stat strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.2rem;
+}
+
+.profile-orders,
+.profile-order-items {
+  display: grid;
+  gap: 14px;
+}
+
+.profile-order-card__top,
+.profile-order-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.profile-order-card h3 {
+  margin: 4px 0 0;
+}
+
 .checkout-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
@@ -728,7 +783,8 @@ button {
   }
 
   .checkout-inline-fields,
-  .checkout-coupon__controls {
+  .checkout-coupon__controls,
+  .profile-stats {
     grid-template-columns: 1fr;
   }
 

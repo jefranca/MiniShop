@@ -149,6 +149,83 @@ describe('App', () => {
           });
         }
 
+        if (init?.method === 'POST' && url.includes('/api/orders')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              message: 'Order created successfully.',
+              order: {
+                id: 1,
+                userId: 1,
+                customerName: 'Jefferson Franca',
+                email: 'jefferson@email.com',
+                cep: '01001000',
+                street: 'Praca da Se',
+                number: '100',
+                neighborhood: 'Se',
+                city: 'Sao Paulo',
+                state: 'SP',
+                paymentMethod: 'cartao',
+                subtotal: 249.9,
+                shipping: 18.9,
+                discount: 0,
+                total: 268.8,
+                createdAt: '2026-03-19T12:00:00.000Z',
+                items: [
+                  {
+                    id: 1,
+                    name: 'Jaqueta Atlas',
+                    category: 'Moda',
+                    price: 249.9,
+                    image: '[jacket]',
+                    description:
+                      'Camada premium para dias corridos, com textura leve e corte urbano.',
+                    quantity: 1,
+                  },
+                ],
+              },
+            }),
+          });
+        }
+
+        if (url.includes('/api/users/1/orders') && !init?.method) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => [
+              {
+                id: 1,
+                userId: 1,
+                customerName: 'Jefferson Franca',
+                email: 'jefferson@email.com',
+                cep: '01001000',
+                street: 'Praca da Se',
+                number: '100',
+                neighborhood: 'Se',
+                city: 'Sao Paulo',
+                state: 'SP',
+                paymentMethod: 'cartao',
+                subtotal: 249.9,
+                shipping: 18.9,
+                discount: 0,
+                total: 268.8,
+                createdAt: '2026-03-19T12:00:00.000Z',
+                items: [
+                  {
+                    id: 1,
+                    name: 'Jaqueta Atlas',
+                    category: 'Moda',
+                    price: 249.9,
+                    image: '[jacket]',
+                    description:
+                      'Camada premium para dias corridos, com textura leve e corte urbano.',
+                    quantity: 1,
+                  },
+                ],
+              },
+            ],
+          });
+        }
+
         if (init?.method === 'POST' && url.includes('/api/categories')) {
           return Promise.resolve({
             ok: true,
@@ -289,6 +366,35 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Escolha os destaques da semana')).toBeInTheDocument();
+    });
+  });
+
+  it('mostra perfil e permite logout depois do login', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Entrar' }));
+    await user.type(screen.getByPlaceholderText('voce@email.com'), 'jefferson@email.com');
+    await user.type(screen.getByPlaceholderText('Sua senha'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Entrar' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Perfil' })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('link', { name: 'Perfil' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Historico de pedidos' })).toBeInTheDocument();
+      expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Sair' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Entrar' })).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Perfil' })).not.toBeInTheDocument();
     });
   });
 
@@ -491,6 +597,15 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('link', { name: 'Entrar' }));
+    await user.type(screen.getByPlaceholderText('voce@email.com'), 'jefferson@email.com');
+    await user.type(screen.getByPlaceholderText('Sua senha'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Entrar' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Escolha os destaques da semana')).toBeInTheDocument();
     });
 
     await user.click(screen.getAllByRole('button', { name: 'Adicionar' })[0]);

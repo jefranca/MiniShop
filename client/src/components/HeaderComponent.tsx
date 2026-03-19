@@ -1,3 +1,5 @@
+import type { AuthUser } from '../types/user';
+
 type HeaderComponentProps = {
   currentPage:
     | 'store'
@@ -5,12 +7,15 @@ type HeaderComponentProps = {
     | 'categories'
     | 'checkout'
     | 'order-success'
+    | 'profile'
     | 'signin'
     | 'signup'
     | 'admin';
+  currentUser: AuthUser | null;
+  onLogout: () => void;
 };
 
-export function HeaderComponent({ currentPage }: HeaderComponentProps) {
+export function HeaderComponent({ currentPage, currentUser, onLogout }: HeaderComponentProps) {
   return (
     <nav className="top-nav" aria-label="Principal">
       <a
@@ -35,18 +40,34 @@ export function HeaderComponent({ currentPage }: HeaderComponentProps) {
       >
         Admin
       </a>
-      <a
-        href="#/signin"
-        className={currentPage === 'signin' ? 'top-nav__link is-active' : 'top-nav__link'}
-      >
-        Entrar
-      </a>
-      <a
-        href="#/signup"
-        className={currentPage === 'signup' ? 'top-nav__link is-active' : 'top-nav__link'}
-      >
-        Criar conta
-      </a>
+      {currentUser ? (
+        <>
+          <a
+            href="#/profile"
+            className={currentPage === 'profile' ? 'top-nav__link is-active' : 'top-nav__link'}
+          >
+            Perfil
+          </a>
+          <button type="button" className="top-nav__button" onClick={onLogout}>
+            Sair
+          </button>
+        </>
+      ) : (
+        <>
+          <a
+            href="#/signin"
+            className={currentPage === 'signin' ? 'top-nav__link is-active' : 'top-nav__link'}
+          >
+            Entrar
+          </a>
+          <a
+            href="#/signup"
+            className={currentPage === 'signup' ? 'top-nav__link is-active' : 'top-nav__link'}
+          >
+            Criar conta
+          </a>
+        </>
+      )}
     </nav>
   );
 }

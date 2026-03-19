@@ -8,15 +8,19 @@ import { Categories } from './pages/Categories';
 import { Checkout } from './pages/Checkout';
 import { Home } from './pages/Home';
 import { OrderSuccess } from './pages/OrderSuccess';
+import { Profile } from './pages/Profile';
 import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
 import { createCategory, listCategories } from './services/categoryService';
+import { createOrder } from './services/orderService';
 import { createProduct, deleteProduct, listProducts, updateProduct } from './services/productService';
+import type { OrderPayload } from './types/order';
 import type { CartItem, Category, Product, ProductFormState } from './types/product';
+import type { AuthUser } from './types/user';
 import { initialProductForm } from './utils/constants';
 import { buildCatalogHash, buildOrderSuccessHash, getCurrentRoute } from './utils/navigation';
 import { mapProductToForm } from './utils/productForm';
-import { loadCart, saveCart } from './utils/localStorage';
+import { loadCart, loadUser, saveCart, saveUser } from './utils/localStorage';
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -26,10 +30,19 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState<
-    'store' | 'catalog' | 'categories' | 'checkout' | 'order-success' | 'signin' | 'signup' | 'admin'
+    | 'store'
+    | 'catalog'
+    | 'categories'
+    | 'checkout'
+    | 'order-success'
+    | 'signin'
+    | 'signup'
+    | 'admin'
+    | 'profile'
   >(
     getCurrentRoute().page,
   );
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [productForm, setProductForm] = useState<ProductFormState>(initialProductForm);
   const [adminMessage, setAdminMessage] = useState('');
   const [categoryForm, setCategoryForm] = useState('');
@@ -46,6 +59,7 @@ export default function App() {
       if (
         route.page !== 'admin' &&
         route.page !== 'checkout' &&
+        route.page !== 'profile' &&
         route.page !== 'signin' &&
         route.page !== 'signup'
       ) {
@@ -60,11 +74,16 @@ export default function App() {
 
   useEffect(() => {
     setCart(loadCart());
+    setCurrentUser(loadUser());
   }, []);
 
   useEffect(() => {
     saveCart(cart);
   }, [cart]);
+
+  useEffect(() => {
+    saveUser(currentUser);
+  }, [currentUser]);
 
   useEffect(() => {
     async function loadStoreData() {
@@ -142,9 +161,19 @@ export default function App() {
     );
   }
 
-  function handleConfirmOrder() {
+  async function handleConfirmOrder(orderPayload: OrderPayload) {
+    await createOrder(orderPayload);
     setCart([]);
     window.location.hash = buildOrderSuccessHash();
+  }
+
+  function handleSignedIn(user: AuthUser) {
+    setCurrentUser(user);
+  }
+
+  function handleLogout() {
+    setCurrentUser(null);
+    window.location.hash = '#/';
   }
 
   function resetAdminForm() {
@@ -269,7 +298,7 @@ export default function App() {
   return (
     <div className="page-shell">
       <header className="hero">
-        <HeaderComponent currentPage={currentPage} />
+        <HeaderComponent currentPage={currentPage} currentUser={currentUser} onLogout={handleLogout} />
         <Hero
           currentPage={currentPage}
           productCount={products.length}
@@ -309,14 +338,21 @@ export default function App() {
             updateQuantity={updateQuantity}
           />
         </main>
+      ) : currentPage === 'profile' ? (
+        <Profile currentUser={currentUser} />
       ) : currentPage === 'signin' ? (
-        <SignIn />
+        <SignIn onSignedIn={handleSignedIn} />
       ) : currentPage === 'signup' ? (
-        <SignUp />
+        <SignUp onSignedUp={handleSignedIn} />
       ) : (
         <main className="content-grid">
           {currentPage === 'checkout' ? (
-            <Checkout cart={cart} cartTotal={cartTotal} onConfirmOrder={handleConfirmOrder} />
+            <Checkout
+              cart={cart}
+              cartTotal={cartTotal}
+              currentUser={currentUser}
+              onConfirmOrder={handleConfirmOrder}
+            />
           ) : currentPage === 'categories' ? (
             <Categories categories={categories} productsCountByCategory={productsCountByCategory} />
           ) : currentPage === 'catalog' ? (
