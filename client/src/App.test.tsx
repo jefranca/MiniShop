@@ -121,6 +121,34 @@ describe('App', () => {
           });
         }
 
+        if (init?.method === 'POST' && url.includes('/api/auth/signup')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              message: 'User created successfully.',
+              user: {
+                id: 1,
+                name: 'Jefferson Franca',
+                email: 'jefferson@email.com',
+              },
+            }),
+          });
+        }
+
+        if (init?.method === 'POST' && url.includes('/api/auth/signin')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              message: 'Sign in successful.',
+              user: {
+                id: 1,
+                name: 'Jefferson Franca',
+                email: 'jefferson@email.com',
+              },
+            }),
+          });
+        }
+
         if (init?.method === 'POST' && url.includes('/api/categories')) {
           return Promise.resolve({
             ok: true,
@@ -229,6 +257,38 @@ describe('App', () => {
       expect(screen.getByRole('heading', { name: 'Criar conta na MiniShop' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Criar conta' })).toBeInTheDocument();
       expect(screen.getByText(/monte seu acesso/i)).toBeInTheDocument();
+    });
+  });
+
+  it('envia o cadastro para o backend e redireciona para login', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Criar conta' }));
+    await user.type(screen.getByPlaceholderText('Seu nome'), 'Jefferson Franca');
+    await user.type(screen.getByPlaceholderText('voce@email.com'), 'jefferson@email.com');
+    await user.type(screen.getByPlaceholderText('Crie uma senha'), '123456');
+    await user.type(screen.getByPlaceholderText('Repita a senha'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Criar conta' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Entrar na sua conta' })).toBeInTheDocument();
+    });
+  });
+
+  it('envia o login para o backend e volta para a loja', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Entrar' }));
+    await user.type(screen.getByPlaceholderText('voce@email.com'), 'jefferson@email.com');
+    await user.type(screen.getByPlaceholderText('Sua senha'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Entrar' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Escolha os destaques da semana')).toBeInTheDocument();
     });
   });
 

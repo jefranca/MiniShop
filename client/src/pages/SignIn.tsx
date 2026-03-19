@@ -1,4 +1,36 @@
+import { FormEvent, useState } from 'react';
+import { signIn } from '../services/authService';
+
 export function SignIn() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setMessage('');
+
+    if (!email.trim() || !password.trim()) {
+      setMessage('Preencha e-mail e senha antes de entrar.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await signIn({
+        email: email.trim(),
+        password,
+      });
+      setMessage(`Bem-vindo de volta, ${response.user.name}.`);
+      window.location.hash = '#/';
+    } catch (submitError) {
+      setMessage(submitError instanceof Error ? submitError.message : 'Erro inesperado ao entrar.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <main className="auth-layout">
       <section className="auth-card">
@@ -12,15 +44,25 @@ export function SignIn() {
           </div>
         </div>
 
-        <form className="auth-form">
+        <form className="auth-form" onSubmit={handleSubmit}>
           <label className="admin-field">
             <span>E-mail</span>
-            <input type="email" placeholder="voce@email.com" />
+            <input
+              type="email"
+              placeholder="voce@email.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
           </label>
 
           <label className="admin-field">
             <span>Senha</span>
-            <input type="password" placeholder="Sua senha" />
+            <input
+              type="password"
+              placeholder="Sua senha"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
           </label>
 
           <div className="auth-form__meta">
@@ -31,8 +73,10 @@ export function SignIn() {
             <a href="#/signup">Esqueci minha senha</a>
           </div>
 
-          <button type="button" className="checkout-button">
-            Entrar
+          {message ? <p className="checkout-helper">{message}</p> : null}
+
+          <button type="submit" className="checkout-button" disabled={isSubmitting}>
+            {isSubmitting ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
