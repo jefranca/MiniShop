@@ -1,6 +1,12 @@
 import cors from 'cors';
 import express from 'express';
-import { createProduct, findProductById, listProducts, updateProduct } from './services/productService.js';
+import {
+  createProduct,
+  deleteProduct,
+  findProductById,
+  listProducts,
+  updateProduct,
+} from './services/productService.js';
 import type { ProductInput } from './types/product.js';
 
 export const app = express();
@@ -86,6 +92,27 @@ app.put('/api/products/:id', (request, response) => {
   }
 
   response.json(product);
+});
+
+app.delete('/api/products/:id', (request, response) => {
+  const productId = Number(request.params.id);
+
+  if (Number.isNaN(productId)) {
+    response.status(400).json({ message: 'Product id must be a valid number.' });
+    return;
+  }
+
+  const product = deleteProduct(productId);
+
+  if (!product) {
+    response.status(404).json({ message: 'Product not found.' });
+    return;
+  }
+
+  response.json({
+    message: 'Product deleted successfully.',
+    product,
+  });
 });
 
 if (process.env.NODE_ENV !== 'test') {

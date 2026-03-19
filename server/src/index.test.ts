@@ -110,4 +110,31 @@ describe('MiniShop API', () => {
       message: 'Product not found.',
     });
   });
+
+  it('remove um produto existente', async () => {
+    const deleteResponse = await request(app).delete('/api/products/2');
+
+    expect(deleteResponse.status).toBe(200);
+    expect(deleteResponse.body).toEqual({
+      message: 'Product deleted successfully.',
+      product: expect.objectContaining({
+        id: 2,
+        name: 'Fone Pulse Mini',
+      }),
+    });
+
+    const listResponse = await request(app).get('/api/products');
+
+    expect(listResponse.body).toHaveLength(5);
+    expect(listResponse.body.find((product: { id: number }) => product.id === 2)).toBeUndefined();
+  });
+
+  it('retorna 404 ao tentar remover um produto inexistente', async () => {
+    const response = await request(app).delete('/api/products/999');
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      message: 'Product not found.',
+    });
+  });
 });
