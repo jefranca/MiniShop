@@ -3,11 +3,12 @@ import { CartPanel } from './components/CartPanel';
 import { HeaderComponent } from './components/HeaderComponent';
 import { Hero } from './components/Hero';
 import { Admin } from './pages/Admin';
+import { Catalog } from './pages/Catalog';
 import { Home } from './pages/Home';
 import { createProduct, deleteProduct, listProducts, updateProduct } from './services/productService';
 import type { CartItem, Product, ProductFormState } from './types/product';
 import { categories, initialProductForm } from './utils/constants';
-import { getCurrentPage } from './utils/navigation';
+import { buildCatalogHash, getCurrentRoute } from './utils/navigation';
 import { mapProductToForm } from './utils/productForm';
 import { loadCart, saveCart } from './utils/localStorage';
 
@@ -17,7 +18,9 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentPage, setCurrentPage] = useState<'store' | 'admin'>(getCurrentPage);
+  const [currentPage, setCurrentPage] = useState<'store' | 'catalog' | 'admin'>(
+    getCurrentRoute().page,
+  );
   const [productForm, setProductForm] = useState<ProductFormState>(initialProductForm);
   const [adminMessage, setAdminMessage] = useState('');
   const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
@@ -25,9 +28,15 @@ export default function App() {
 
   useEffect(() => {
     const syncPage = () => {
-      setCurrentPage(getCurrentPage());
+      const route = getCurrentRoute();
+      setCurrentPage(route.page);
+
+      if (route.page !== 'admin') {
+        setSelectedCategory(route.category);
+      }
     };
 
+    syncPage();
     window.addEventListener('hashchange', syncPage);
     return () => window.removeEventListener('hashchange', syncPage);
   }, []);
@@ -83,6 +92,14 @@ export default function App() {
 
       return [...currentCart, { ...product, quantity: 1 }];
     });
+  }
+
+  function handleCategoryChange(category: string) {
+    setSelectedCategory(category);
+
+    if (currentPage === 'catalog') {
+      window.location.hash = buildCatalogHash(category);
+    }
   }
 
   function updateQuantity(productId: number, nextQuantity: number) {
@@ -210,14 +227,25 @@ export default function App() {
         />
       ) : (
         <main className="content-grid">
-          <Home
-            filteredProducts={filteredProducts}
-            loading={loading}
-            error={error}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            addToCart={addToCart}
-          />
+          {currentPage === 'catalog' ? (
+            <Catalog
+              filteredProducts={filteredProducts}
+              loading={loading}
+              error={error}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={handleCategoryChange}
+              addToCart={addToCart}
+            />
+          ) : (
+            <Home
+              filteredProducts={filteredProducts}
+              loading={loading}
+              error={error}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={handleCategoryChange}
+              addToCart={addToCart}
+            />
+          )}
           <CartPanel
             cart={cart}
             cartCount={cartCount}

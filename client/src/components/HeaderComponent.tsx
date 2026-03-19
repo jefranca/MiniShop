@@ -1,5 +1,5 @@
 type HeaderComponentProps = {
-  currentPage: 'store' | 'admin';
+  currentPage: 'store' | 'catalog' | 'admin';
 };
 
 export function HeaderComponent({ currentPage }: HeaderComponentProps) {
@@ -7,7 +7,11 @@ export function HeaderComponent({ currentPage }: HeaderComponentProps) {
     <nav className="top-nav" aria-label="Principal">
       <a
         href="#/"
-        className={currentPage === 'store' ? 'top-nav__link is-active' : 'top-nav__link'}
+        className={
+          currentPage === 'store' || currentPage === 'catalog'
+            ? 'top-nav__link is-active'
+            : 'top-nav__link'
+        }
       >
         Loja
       </a>

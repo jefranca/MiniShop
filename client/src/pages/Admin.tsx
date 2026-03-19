@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { ProductImage } from '../components/ProductImage';
 import type { Product, ProductFormState } from '../types/product';
 import { currency } from '../utils/formatters';
 import { categories } from '../utils/constants';
@@ -146,8 +147,12 @@ export function Admin({
           <div className="admin-list">
             {products.map((product) => (
               <article key={product.id} className="admin-card">
-                <div className="admin-card__media" aria-hidden="true">
-                  {product.image}
+                <div className="admin-card__media">
+                  <ProductImage
+                    image={product.image}
+                    productName={product.name}
+                    className="admin-card__image-file"
+                  />
                 </div>
 
                 <div className="admin-card__content">

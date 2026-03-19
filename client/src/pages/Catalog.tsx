@@ -1,10 +1,9 @@
 import type { Product } from '../types/product';
 import { ProductImage } from '../components/ProductImage';
-import { currency } from '../utils/formatters';
 import { categories } from '../utils/constants';
-import { buildCatalogHash } from '../utils/navigation';
+import { currency } from '../utils/formatters';
 
-type HomeProps = {
+type CatalogProps = {
   filteredProducts: Product[];
   loading: boolean;
   error: string;
@@ -13,30 +12,34 @@ type HomeProps = {
   addToCart: (product: Product) => void;
 };
 
-const HOME_PRODUCT_LIMIT = 8;
-
-export function Home({
+export function Catalog({
   filteredProducts,
   loading,
   error,
   selectedCategory,
   setSelectedCategory,
   addToCart,
-}: HomeProps) {
-  const visibleProducts = filteredProducts.slice(0, HOME_PRODUCT_LIMIT);
-  const hasMoreProducts = filteredProducts.length > HOME_PRODUCT_LIMIT;
-  const viewAllLabel =
-    selectedCategory === 'Todos' ? 'Ver todos os produtos' : `Ver tudo em ${selectedCategory}`;
+}: CatalogProps) {
+  const title =
+    selectedCategory === 'Todos'
+      ? 'Todos os produtos'
+      : `Todos os produtos de ${selectedCategory}`;
+
+  const description =
+    selectedCategory === 'Todos'
+      ? 'Explore o catalogo completo da MiniShop sem limite de destaque.'
+      : `Veja todos os itens da categoria ${selectedCategory} em uma lista completa.`;
 
   return (
-    <section className="catalog">
+    <section className="catalog catalog--full">
       <div className="section-heading">
         <div>
-          <p className="section-label">Catalogo</p>
-          <h2>Escolha os destaques da semana</h2>
+          <p className="section-label">Catalogo completo</p>
+          <h2>{title}</h2>
+          <p className="catalog__text">{description}</p>
         </div>
 
-        <div className="filters" role="tablist" aria-label="Filtrar produtos por categoria">
+        <div className="filters" role="tablist" aria-label="Filtrar catalogo completo por categoria">
           {categories.map((category) => (
             <button
               key={category}
@@ -54,7 +57,7 @@ export function Home({
       {error ? <p className="status-message status-message--error">{error}</p> : null}
 
       <div className="product-grid">
-        {visibleProducts.map((product) => (
+        {filteredProducts.map((product) => (
           <article key={product.id} className="product-card">
             <div className="product-card__image">
               <ProductImage
@@ -76,27 +79,6 @@ export function Home({
             </div>
           </article>
         ))}
-
-        {hasMoreProducts ? (
-          <a href={buildCatalogHash(selectedCategory)} className="product-card product-card--cta">
-            <div className="product-card__image product-card__image--cta">
-              <span className="product-card__cta-icon">+</span>
-            </div>
-            <div className="product-card__body product-card__body--cta">
-              <span className="product-card__category">Continue explorando</span>
-              <h3>{viewAllLabel}</h3>
-              <p>
-                {selectedCategory === 'Todos'
-                  ? 'Abra o catalogo completo da MiniShop com todos os itens disponiveis.'
-                  : `Abra a categoria ${selectedCategory} com todos os produtos disponiveis.`}
-              </p>
-              <div className="product-card__footer">
-                <strong>{filteredProducts.length} itens</strong>
-                <span className="product-card__cta-link">Ver tudo</span>
-              </div>
-            </div>
-          </a>
-        ) : null}
       </div>
     </section>
   );

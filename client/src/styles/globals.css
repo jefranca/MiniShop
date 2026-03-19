@@ -145,6 +145,17 @@ button {
   box-shadow: 0 20px 40px rgba(95, 67, 43, 0.08);
 }
 
+.catalog--full {
+  min-height: 100%;
+}
+
+.catalog__text {
+  margin: 12px 0 0;
+  color: #65554a;
+  line-height: 1.6;
+  max-width: 520px;
+}
+
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -188,12 +199,37 @@ button {
   border: 1px solid rgba(87, 68, 56, 0.08);
 }
 
+.product-card--cta {
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(160deg, #fff6ec, #f2e2d0);
+  border-color: rgba(187, 90, 50, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.42);
+}
+
 .product-card__image {
   min-height: 180px;
   display: grid;
   place-items: center;
-  font-size: 4rem;
   background: linear-gradient(135deg, #f6d9a4, #f7eee1);
+  padding: 20px;
+}
+
+.product-card__image--cta {
+  background: linear-gradient(145deg, rgba(187, 90, 50, 0.16), rgba(246, 217, 164, 0.52));
+}
+
+.product-card__image-file,
+.admin-card__image-file {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.product-card__cta-icon {
+  font-size: 4rem;
+  line-height: 1;
+  color: #bb5a32;
 }
 
 .product-card__body {
@@ -203,6 +239,18 @@ button {
 .product-card__body p {
   color: #65554a;
   line-height: 1.6;
+}
+
+.product-card__body--cta h3,
+.product-card__body--cta p,
+.product-card__body--cta .product-card__category,
+.product-card__body--cta .product-card__cta-link,
+.product-card__body--cta strong {
+  color: #473932;
+}
+
+.product-card__body--cta p {
+  color: #65554a;
 }
 
 .product-card__footer,
@@ -229,6 +277,17 @@ button {
   background: #bb5a32;
   color: white;
   padding: 12px 16px;
+}
+
+.product-card__cta-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: #bb5a32;
+  color: #fff7ee;
+  font-weight: 700;
 }
 
 .cart-panel {
@@ -332,9 +391,9 @@ button {
   min-height: 96px;
   display: grid;
   place-items: center;
-  font-size: 2rem;
   border-radius: 18px;
   background: linear-gradient(135deg, #f6d9a4, #f7eee1);
+  padding: 12px;
 }
 
 .admin-card__content {

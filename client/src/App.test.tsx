@@ -20,6 +20,70 @@ const products = [
     image: '[headphones]',
     description: 'Som limpo, bateria de longa duracao e estojo compacto para o dia a dia.',
   },
+  {
+    id: 3,
+    name: 'Luminaria Noma',
+    category: 'Casa',
+    price: 129.9,
+    image: '[lamp]',
+    description: 'Ponto de luz minimalista para mesas, quartos e cantinhos de leitura.',
+  },
+  {
+    id: 4,
+    name: 'Mochila Orbit',
+    category: 'Moda',
+    price: 219.9,
+    image: '[backpack]',
+    description: 'Espaco interno inteligente e design pensado para rotina, estudo e viagem.',
+  },
+  {
+    id: 5,
+    name: 'Speaker Loop',
+    category: 'Tecnologia',
+    price: 199.9,
+    image: '[speaker]',
+    description: 'Caixa de som portatil com graves fortes e acabamento resistente.',
+  },
+  {
+    id: 6,
+    name: 'Vaso Halo',
+    category: 'Casa',
+    price: 89.9,
+    image: '[vase]',
+    description: 'Detalhe organico para compor ambientes leves, quentes e acolhedores.',
+  },
+  {
+    id: 7,
+    name: 'Camisa Horizon',
+    category: 'Moda',
+    price: 119.9,
+    image: 'shirt',
+    description: 'Camisa casual com caimento limpo para rotina, encontros e viagens leves.',
+  },
+  {
+    id: 8,
+    name: 'Tenis Nova Run',
+    category: 'Moda',
+    price: 289.9,
+    image: 'sneakers',
+    description: 'Conforto esportivo com visual urbano para acompanhar dias intensos.',
+  },
+  {
+    id: 9,
+    name: 'Relogio Meridian',
+    category: 'Moda',
+    price: 329.9,
+    image: 'watch',
+    description: 'Design elegante e acabamento discreto para compor producoes modernas.',
+  },
+  {
+    id: 10,
+    name: 'Bone Venture',
+    category: 'Moda',
+    price: 79.9,
+    image: 'cap',
+    description: 'Bone leve com ajuste confortavel para sol, passeio e uso diario.',
+  },
 ];
 
 describe('App', () => {
@@ -36,7 +100,7 @@ describe('App', () => {
           return Promise.resolve({
             ok: true,
             json: async () => ({
-              id: 3,
+              id: 11,
               name: 'Cadeira Aurora',
               category: 'Casa',
               price: 129.9,
@@ -85,7 +149,26 @@ describe('App', () => {
     await waitFor(() => {
       expect(screen.getByText('Escolha os destaques da semana')).toBeInTheDocument();
       expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /ver todos os produtos/i })).toBeInTheDocument();
+      expect(screen.queryByText('Bone Venture')).not.toBeInTheDocument();
       expect(screen.queryByText('Gerenciamento de produtos')).not.toBeInTheDocument();
+    });
+  });
+
+  it('abre o catalogo completo pela opcao ver tudo', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Jaqueta Atlas')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('link', { name: /ver todos os produtos/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Todos os produtos')).toBeInTheDocument();
+      expect(screen.getByText('Bone Venture')).toBeInTheDocument();
     });
   });
 
