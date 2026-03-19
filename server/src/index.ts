@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
-import { findProductById, listProducts } from './services/productService.js';
+import { createProduct, findProductById, listProducts } from './services/productService.js';
+import type { ProductInput } from './types/product.js';
 
 export const app = express();
 const port = Number(process.env.PORT ?? 3333);
@@ -32,6 +33,27 @@ app.get('/api/products/:id', (request, response) => {
   }
 
   response.json(product);
+});
+
+app.post('/api/products', (request, response) => {
+  const { name, category, price, image, description } = request.body as Partial<ProductInput>;
+
+  if (!name || !category || typeof price !== 'number' || !image || !description) {
+    response.status(400).json({
+      message: 'Name, category, price, image and description are required.',
+    });
+    return;
+  }
+
+  const product = createProduct({
+    name,
+    category,
+    price,
+    image,
+    description,
+  });
+
+  response.status(201).json(product);
 });
 
 if (process.env.NODE_ENV !== 'test') {

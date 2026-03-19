@@ -6,3 +6,5 @@ export type Product = {
   image: string;
   description: string;
 };
+
+export type ProductInput = Omit<Product, 'id'>;

@@ -49,4 +49,33 @@ describe('MiniShop API', () => {
       message: 'Product not found.',
     });
   });
+
+  it('cria um novo produto', async () => {
+    const response = await request(app).post('/api/products').send({
+      name: 'Mesa Lume',
+      category: 'Casa',
+      price: 349.9,
+      image: '[table]',
+      description: 'Mesa compacta com acabamento natural para ambientes modernos.',
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toMatchObject({
+      id: 7,
+      name: 'Mesa Lume',
+      category: 'Casa',
+      price: 349.9,
+    });
+  });
+
+  it('retorna 400 ao tentar criar produto com payload incompleto', async () => {
+    const response = await request(app).post('/api/products').send({
+      name: 'Produto incompleto',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      message: 'Name, category, price, image and description are required.',
+    });
+  });
 });
