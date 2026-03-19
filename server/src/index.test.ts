@@ -1,5 +1,6 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { productSeed } from './data/products.js';
 import { app } from './index.js';
 import { resetProducts } from './services/productService.js';
 
@@ -22,7 +23,7 @@ describe('MiniShop API', () => {
     const response = await request(app).get('/api/products');
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(6);
+    expect(response.body).toHaveLength(productSeed.length);
     expect(response.body[0]).toMatchObject({
       id: 1,
       name: 'Jaqueta Atlas',
@@ -125,7 +126,7 @@ describe('MiniShop API', () => {
 
     const listResponse = await request(app).get('/api/products');
 
-    expect(listResponse.body).toHaveLength(5);
+    expect(listResponse.body).toHaveLength(productSeed.length - 1);
     expect(listResponse.body.find((product: { id: number }) => product.id === 2)).toBeUndefined();
   });
 
