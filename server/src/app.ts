@@ -1,6 +1,10 @@
 import cors from 'cors';
 import express from 'express';
 import {
+  createCategoryController,
+  listCategoriesController,
+} from './controllers/categoryController.js';
+import {
   createProductController,
   deleteProductController,
   healthController,
@@ -16,6 +20,12 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/api/health', healthController);
+app.get('/api/categories', (request, response, next) => {
+  void listCategoriesController(request, response).catch(next);
+});
+app.post('/api/categories', (request, response, next) => {
+  void createCategoryController(request, response).catch(next);
+});
 app.get('/api/products', (request, response, next) => {
   void listProductsController(request, response).catch(next);
 });

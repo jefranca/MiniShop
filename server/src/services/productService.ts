@@ -1,4 +1,5 @@
 import { productSeed } from '../data/products.js';
+import { categorySeed } from '../data/categories.js';
 import { prisma } from '../lib/prisma.js';
 import type { Product, ProductInput } from '../types/product.js';
 
@@ -57,6 +58,10 @@ export async function deleteProduct(productId: number) {
 
 export async function resetProducts() {
   await prisma.product.deleteMany();
+  await prisma.category.deleteMany();
+  await prisma.category.createMany({
+    data: categorySeed,
+  });
   await prisma.product.createMany({
     data: productSeed,
   });

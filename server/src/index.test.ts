@@ -1,3 +1,4 @@
+import { categorySeed } from './data/categories.js';
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { productSeed } from './data/products.js';
@@ -28,6 +29,27 @@ describe('MiniShop API', () => {
       id: 1,
       name: 'Jaqueta Atlas',
       category: 'Moda',
+    });
+  });
+
+  it('lista categorias disponiveis', async () => {
+    const response = await request(app).get('/api/categories');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(categorySeed.length);
+    expect(response.body[0]).toMatchObject({
+      name: 'Casa',
+    });
+  });
+
+  it('cria uma nova categoria', async () => {
+    const response = await request(app).post('/api/categories').send({
+      name: 'Escritorio',
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toMatchObject({
+      name: 'Escritorio',
     });
   });
 
@@ -77,6 +99,21 @@ describe('MiniShop API', () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       message: 'Name, category, price, image and description are required.',
+    });
+  });
+
+  it('retorna 400 ao tentar criar produto com categoria inexistente', async () => {
+    const response = await request(app).post('/api/products').send({
+      name: 'Produto sem categoria valida',
+      category: 'Inexistente',
+      price: 10,
+      image: 'x',
+      description: 'Teste.',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      message: 'Category does not exist.',
     });
   });
 

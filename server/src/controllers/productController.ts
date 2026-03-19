@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
 import { NotFoundError } from '../errors/NotFoundError.js';
+import { ValidationError } from '../errors/ValidationError.js';
+import { findCategoryByName } from '../services/categoryService.js';
 import {
   createProduct,
   deleteProduct,
@@ -31,6 +33,12 @@ export async function showProductController(request: Request, response: Response
 
 export async function createProductController(request: Request, response: Response) {
   const productInput = validateProductInput(request.body);
+  const category = await findCategoryByName(productInput.category);
+
+  if (!category) {
+    throw new ValidationError('Category does not exist.');
+  }
+
   const product = await createProduct(productInput);
 
   response.status(201).json(product);
@@ -39,6 +47,12 @@ export async function createProductController(request: Request, response: Respon
 export async function updateProductController(request: Request, response: Response) {
   const productId = validateProductId(String(request.params.id));
   const productInput = validateProductInput(request.body);
+  const category = await findCategoryByName(productInput.category);
+
+  if (!category) {
+    throw new ValidationError('Category does not exist.');
+  }
+
   const product = await updateProduct(productId, productInput);
 
   if (!product) {
