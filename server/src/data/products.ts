@@ -6,7 +6,7 @@ export const productSeed: Product[] = [
     name: 'Jaqueta Atlas',
     category: 'Moda',
     price: 249.9,
-    image: '[jacket]',
+    image: 'https://img.ltwebstatic.com/v4/j/spmp/2025/06/18/c3/1750232743478df25bdadaf4689d5eed54c950174f_thumbnail_405x.webp',
     description: 'Camada premium para dias corridos, com textura leve e corte urbano.',
   },
   {
@@ -14,7 +14,8 @@ export const productSeed: Product[] = [
     name: 'Fone Pulse Mini',
     category: 'Tecnologia',
     price: 179.9,
-    image: '[headphones]',
+    image:
+      'https://images.pexels.com/photos/577769/pexels-photo-577769.jpeg?auto=compress&cs=tinysrgb&w=1200',
     description: 'Som limpo, bateria de longa duracao e estojo compacto para o dia a dia.',
   },
   {
@@ -22,7 +23,8 @@ export const productSeed: Product[] = [
     name: 'Luminaria Noma',
     category: 'Casa',
     price: 129.9,
-    image: '[lamp]',
+    image:
+      'https://images.pexels.com/photos/34200624/pexels-photo-34200624.jpeg?auto=compress&cs=tinysrgb&w=1200',
     description: 'Ponto de luz minimalista para mesas, quartos e cantinhos de leitura.',
   },
   {
@@ -30,7 +32,8 @@ export const productSeed: Product[] = [
     name: 'Mochila Orbit',
     category: 'Moda',
     price: 219.9,
-    image: '[backpack]',
+    image:
+      'https://images.pexels.com/photos/30210013/pexels-photo-30210013.jpeg?auto=compress&cs=tinysrgb&w=1200',
     description: 'Espaco interno inteligente e design pensado para rotina, estudo e viagem.',
   },
   {
@@ -38,7 +41,8 @@ export const productSeed: Product[] = [
     name: 'Speaker Loop',
     category: 'Tecnologia',
     price: 199.9,
-    image: '[speaker]',
+    image:
+      'https://images.pexels.com/photos/1279107/pexels-photo-1279107.jpeg?auto=compress&cs=tinysrgb&w=1200',
     description: 'Caixa de som portatil com graves fortes e acabamento resistente.',
   },
   {
@@ -46,7 +50,8 @@ export const productSeed: Product[] = [
     name: 'Vaso Halo',
     category: 'Casa',
     price: 89.9,
-    image: '[vase]',
+    image:
+      'https://images.pexels.com/photos/4207790/pexels-photo-4207790.jpeg?auto=compress&cs=tinysrgb&w=1200',
     description: 'Detalhe organico para compor ambientes leves, quentes e acolhedores.',
   },
 ];
