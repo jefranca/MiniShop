@@ -49,16 +49,6 @@ export function SignUp() {
           Ja tem conta? <a href="#/signin">Entrar</a>
         </p>
       </section>
-
-      <aside className="auth-highlight auth-highlight--warm">
-        <p className="section-label">Nova conta</p>
-        <h3>Uma base pronta para crescer com login, pedidos e perfil</h3>
-        <ul className="auth-benefits">
-          <li>Salve seus dados para checkouts mais rapidos.</li>
-          <li>Tenha um historico de pedidos em uma area segura.</li>
-          <li>Prepare a MiniShop para recursos mais completos de conta.</li>
-        </ul>
-      </aside>
     </main>
   );
 }

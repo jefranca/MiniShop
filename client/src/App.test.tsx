@@ -228,7 +228,7 @@ describe('App', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Criar conta na MiniShop' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Criar conta' })).toBeInTheDocument();
-      expect(screen.getByText(/historico de pedidos/i)).toBeInTheDocument();
+      expect(screen.getByText(/monte seu acesso/i)).toBeInTheDocument();
     });
   });
 

@@ -40,16 +40,6 @@ export function SignIn() {
           Ainda nao tem conta? <a href="#/signup">Criar conta</a>
         </p>
       </section>
-
-      <aside className="auth-highlight">
-        <p className="section-label">MiniShop account</p>
-        <h3>Um acesso mais rapido para sua jornada de compra</h3>
-        <ul className="auth-benefits">
-          <li>Acompanhe pedidos e entregas em uma area dedicada.</li>
-          <li>Salve itens favoritos para voltar depois.</li>
-          <li>Preencha checkout com mais velocidade nas proximas compras.</li>
-        </ul>
-      </aside>
     </main>
   );
 }

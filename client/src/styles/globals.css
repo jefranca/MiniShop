@@ -539,7 +539,8 @@ button {
 
 .auth-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  grid-template-columns: minmax(0, 640px);
+  justify-content: center;
   gap: 24px;
   margin-top: 24px;
   align-items: start;
@@ -554,31 +555,6 @@ button {
   background: rgba(255, 252, 248, 0.9);
   border: 1px solid rgba(87, 68, 56, 0.08);
   box-shadow: 0 20px 40px rgba(95, 67, 43, 0.08);
-}
-
-.auth-highlight {
-  background:
-    linear-gradient(180deg, rgba(27, 42, 65, 0.95), rgba(65, 46, 34, 0.92)),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
-  color: #fff7ee;
-}
-
-.auth-highlight--warm {
-  background:
-    linear-gradient(180deg, rgba(187, 90, 50, 0.94), rgba(94, 57, 38, 0.92)),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
-}
-
-.auth-highlight .section-label,
-.auth-highlight h3,
-.auth-highlight li {
-  color: inherit;
-}
-
-.auth-highlight h3 {
-  margin: 0;
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  line-height: 1.1;
 }
 
 .auth-form {
@@ -614,14 +590,6 @@ button {
   color: #8d4323;
   font-weight: 700;
   text-decoration: none;
-}
-
-.auth-benefits {
-  margin: 0;
-  padding-left: 18px;
-  display: grid;
-  gap: 12px;
-  line-height: 1.6;
 }
 
 .checkout-grid {
