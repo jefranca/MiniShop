@@ -67,6 +67,7 @@ describe('MiniShop API', () => {
         id: expect.any(Number),
         name: 'Jefferson Franca',
         email: 'jefferson@email.com',
+        token: expect.any(String),
       }),
     });
     expect(response.body.user.passwordHash).toBeUndefined();
@@ -110,6 +111,7 @@ describe('MiniShop API', () => {
         id: expect.any(Number),
         name: 'Jefferson Franca',
         email: 'jefferson@email.com',
+        token: expect.any(String),
       }),
     });
   });
@@ -138,34 +140,38 @@ describe('MiniShop API', () => {
       email: 'jefferson@email.com',
       password: '123456',
     });
+    const token = signUpResponse.body.user.token;
 
-    const response = await request(app).post('/api/orders').send({
-      userId: signUpResponse.body.user.id,
-      customerName: 'Jefferson Franca',
-      email: 'jefferson@email.com',
-      cep: '01001000',
-      street: 'Praca da Se',
-      number: '100',
-      neighborhood: 'Se',
-      city: 'Sao Paulo',
-      state: 'SP',
-      paymentMethod: 'cartao',
-      subtotal: 179.9,
-      shipping: 18.9,
-      discount: 0,
-      total: 198.8,
-      items: [
-        {
-          id: 2,
-          name: 'Fone Pulse Mini',
-          category: 'Tecnologia',
-          price: 179.9,
-          image: '[headphones]',
-          description: 'Som limpo, bateria de longa duracao e estojo compacto para o dia a dia.',
-          quantity: 1,
-        },
-      ],
-    });
+    const response = await request(app)
+      .post('/api/orders')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        userId: signUpResponse.body.user.id,
+        customerName: 'Jefferson Franca',
+        email: 'jefferson@email.com',
+        cep: '01001000',
+        street: 'Praca da Se',
+        number: '100',
+        neighborhood: 'Se',
+        city: 'Sao Paulo',
+        state: 'SP',
+        paymentMethod: 'cartao',
+        subtotal: 179.9,
+        shipping: 18.9,
+        discount: 0,
+        total: 198.8,
+        items: [
+          {
+            id: 2,
+            name: 'Fone Pulse Mini',
+            category: 'Tecnologia',
+            price: 179.9,
+            image: '[headphones]',
+            description: 'Som limpo, bateria de longa duracao e estojo compacto para o dia a dia.',
+            quantity: 1,
+          },
+        ],
+      });
 
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('Order created successfully.');
@@ -173,6 +179,7 @@ describe('MiniShop API', () => {
       expect.objectContaining({
         id: expect.any(Number),
         userId: signUpResponse.body.user.id,
+        status: 'Recebido',
         total: 198.8,
       }),
     );
@@ -190,46 +197,101 @@ describe('MiniShop API', () => {
       email: 'jefferson@email.com',
       password: '123456',
     });
+    const token = signUpResponse.body.user.token;
 
-    await request(app).post('/api/orders').send({
-      userId: signUpResponse.body.user.id,
-      customerName: 'Jefferson Franca',
-      email: 'jefferson@email.com',
-      cep: '01001000',
-      street: 'Praca da Se',
-      number: '100',
-      neighborhood: 'Se',
-      city: 'Sao Paulo',
-      state: 'SP',
-      paymentMethod: 'cartao',
-      subtotal: 179.9,
-      shipping: 18.9,
-      discount: 0,
-      total: 198.8,
-      items: [
-        {
-          id: 2,
-          name: 'Fone Pulse Mini',
-          category: 'Tecnologia',
-          price: 179.9,
-          image: '[headphones]',
-          description: 'Som limpo, bateria de longa duracao e estojo compacto para o dia a dia.',
-          quantity: 1,
-        },
-      ],
-    });
+    await request(app)
+      .post('/api/orders')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        userId: signUpResponse.body.user.id,
+        customerName: 'Jefferson Franca',
+        email: 'jefferson@email.com',
+        cep: '01001000',
+        street: 'Praca da Se',
+        number: '100',
+        neighborhood: 'Se',
+        city: 'Sao Paulo',
+        state: 'SP',
+        paymentMethod: 'cartao',
+        subtotal: 179.9,
+        shipping: 18.9,
+        discount: 0,
+        total: 198.8,
+        items: [
+          {
+            id: 2,
+            name: 'Fone Pulse Mini',
+            category: 'Tecnologia',
+            price: 179.9,
+            image: '[headphones]',
+            description: 'Som limpo, bateria de longa duracao e estojo compacto para o dia a dia.',
+            quantity: 1,
+          },
+        ],
+      });
 
-    const response = await request(app).get(`/api/users/${signUpResponse.body.user.id}/orders`);
+    const response = await request(app)
+      .get(`/api/users/${signUpResponse.body.user.id}/orders`)
+      .set('Authorization', `Bearer ${token}`);
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(1);
     expect(response.body[0]).toEqual(
       expect.objectContaining({
         userId: signUpResponse.body.user.id,
+        status: 'Recebido',
         customerName: 'Jefferson Franca',
         total: 198.8,
       }),
     );
+  });
+
+  it('retorna o perfil do usuario autenticado', async () => {
+    const signUpResponse = await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    const response = await request(app)
+      .get(`/api/users/${signUpResponse.body.user.id}/profile`)
+      .set('Authorization', `Bearer ${signUpResponse.body.user.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        id: signUpResponse.body.user.id,
+        name: 'Jefferson Franca',
+        email: 'jefferson@email.com',
+      }),
+    );
+  });
+
+  it('atualiza o perfil do usuario autenticado', async () => {
+    const signUpResponse = await request(app).post('/api/auth/signup').send({
+      name: 'Jefferson Franca',
+      email: 'jefferson@email.com',
+      password: '123456',
+    });
+
+    const response = await request(app)
+      .put(`/api/users/${signUpResponse.body.user.id}/profile`)
+      .set('Authorization', `Bearer ${signUpResponse.body.user.token}`)
+      .send({
+        name: 'Jef Franca',
+        email: 'jef@email.com',
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      message: 'Profile updated successfully.',
+      user: expect.objectContaining({
+        id: signUpResponse.body.user.id,
+        name: 'Jef Franca',
+        email: 'jef@email.com',
+        token: expect.any(String),
+      }),
+    });
   });
 
   it('retorna um produto especifico por id', async () => {

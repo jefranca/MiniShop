@@ -25,6 +25,7 @@ export type OrderInput = {
 export type OrderSummary = {
   id: number;
   userId: number;
+  status: string;
   customerName: string;
   email: string;
   cep: string;

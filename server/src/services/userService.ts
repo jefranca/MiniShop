@@ -35,6 +35,43 @@ export async function findUserById(userId: number) {
   return user ? toPublicUser(user as PersistedUser) : null;
 }
 
+export async function updateUserProfile(
+  userId: number,
+  input: { name: string; email: string },
+) {
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!existingUser) {
+    return null;
+  }
+
+  const conflictingUser = await prisma.user.findUnique({
+    where: {
+      email: input.email,
+    },
+  });
+
+  if (conflictingUser && conflictingUser.id !== userId) {
+    throw new ConflictError('User already exists with this email.');
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      name: input.name,
+      email: input.email,
+    },
+  });
+
+  return toPublicUser(updatedUser as PersistedUser);
+}
+
 export async function createUser(input: UserInput) {
   const existingUser = await findUserByEmail(input.email);
 

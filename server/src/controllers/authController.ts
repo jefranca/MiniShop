@@ -1,15 +1,20 @@
 import type { Request, Response } from 'express';
 import { ValidationError } from '../errors/ValidationError.js';
+import { generateToken } from '../lib/jwt.js';
 import { createUser, signInUser } from '../services/userService.js';
 import { validateSignInInput, validateSignUpInput } from '../validations/authValidation.js';
 
 export async function signUpController(request: Request, response: Response) {
   const userInput = validateSignUpInput(request.body);
   const user = await createUser(userInput);
+  const token = generateToken(user);
 
   response.status(201).json({
     message: 'User created successfully.',
-    user,
+    user: {
+      ...user,
+      token,
+    },
   });
 }
 
@@ -21,8 +26,13 @@ export async function signInController(request: Request, response: Response) {
     throw new ValidationError('Invalid email or password.');
   }
 
+  const token = generateToken(user);
+
   response.json({
     message: 'Sign in successful.',
-    user,
+    user: {
+      ...user,
+      token,
+    },
   });
 }

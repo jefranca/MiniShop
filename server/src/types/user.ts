@@ -6,6 +6,10 @@ export type User = {
   updatedAt: Date;
 };
 
+export type AuthUserResponse = User & {
+  token: string;
+};
+
 export type UserInput = {
   name: string;
   email: string;

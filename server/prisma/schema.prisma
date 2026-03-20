@@ -33,6 +33,7 @@ model User {
 model Order {
   id            Int         @id @default(autoincrement())
   userId        Int
+  status        String      @default("Recebido")
   customerName  String
   email         String
   cep           String
