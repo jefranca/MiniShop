@@ -1,7 +1,8 @@
 import { apiRequest } from './api';
+import { buildApiUrl } from './config';
 import type { AuthResponse, SignInPayload, SignUpPayload } from '../types/user';
 
-const AUTH_BASE_URL = 'http://localhost:3333/api/auth';
+const AUTH_BASE_URL = buildApiUrl('/api/auth');
 
 export function signUp(payload: SignUpPayload) {
   return apiRequest<AuthResponse>(`${AUTH_BASE_URL}/signup`, {

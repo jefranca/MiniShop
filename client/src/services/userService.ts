@@ -1,7 +1,8 @@
 import type { AuthResponse, AuthUser } from '../types/user';
 import { apiRequest } from './api';
+import { buildApiUrl } from './config';
 
-const USERS_BASE_URL = 'http://localhost:3333/api/users';
+const USERS_BASE_URL = buildApiUrl('/api/users');
 
 export function getUserProfile(userId: number, token: string) {
   return apiRequest<Omit<AuthUser, 'token'>>(`${USERS_BASE_URL}/${userId}/profile`, {

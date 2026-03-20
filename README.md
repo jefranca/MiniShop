@@ -117,25 +117,52 @@ O schema principal esta em `server/prisma/schema.prisma`.
 npm install
 ```
 
-### 2. Gerar o Prisma Client
+### 2. Configurar variaveis de ambiente
+
+Front-end:
+
+```bash
+cp client/.env.example client/.env
+```
+
+Back-end:
+
+```bash
+cp server/.env.example server/.env
+```
+
+No front, `VITE_API_BASE_URL` pode ficar vazio no desenvolvimento local usando o proxy do Vite. Em deploy, defina a URL publica da API, por exemplo:
+
+```bash
+VITE_API_BASE_URL=https://seu-backend.onrender.com
+```
+
+No back, ajuste ao menos:
+
+```bash
+JWT_SECRET=sua-chave-segura
+PORT=3333
+```
+
+### 3. Gerar o Prisma Client
 
 ```bash
 npm run prisma:generate --workspace server
 ```
 
-### 3. Sincronizar o banco local
+### 4. Sincronizar o banco local
 
 ```bash
 npx prisma db push --schema server/prisma/schema.prisma
 ```
 
-### 4. Popular a base com a seed inicial
+### 5. Popular a base com a seed inicial
 
 ```bash
 npm run prisma:seed --workspace server
 ```
 
-### 5. Subir front e back juntos
+### 6. Subir front e back juntos
 
 ```bash
 npm run dev

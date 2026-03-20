@@ -1,7 +1,8 @@
 import type { Order, OrderPayload, OrderResponse } from '../types/order';
 import { apiRequest } from './api';
+import { buildApiUrl } from './config';
 
-const ORDERS_BASE_URL = 'http://localhost:3333/api';
+const ORDERS_BASE_URL = buildApiUrl('/api');
 
 function withAuthToken(token: string) {
   return {
