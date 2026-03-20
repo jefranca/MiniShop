@@ -130,6 +130,7 @@ describe('App', () => {
                 id: 1,
                 name: 'Jefferson Franca',
                 email: 'jefferson@email.com',
+                token: 'token-123',
               },
             }),
           });
@@ -144,6 +145,7 @@ describe('App', () => {
                 id: 1,
                 name: 'Jefferson Franca',
                 email: 'jefferson@email.com',
+                token: 'token-123',
               },
             }),
           });
@@ -170,6 +172,7 @@ describe('App', () => {
                 shipping: 18.9,
                 discount: 0,
                 total: 268.8,
+                status: 'Recebido',
                 createdAt: '2026-03-19T12:00:00.000Z',
                 items: [
                   {
@@ -208,6 +211,7 @@ describe('App', () => {
                 shipping: 18.9,
                 discount: 0,
                 total: 268.8,
+                status: 'Recebido',
                 createdAt: '2026-03-19T12:00:00.000Z',
                 items: [
                   {
@@ -223,6 +227,33 @@ describe('App', () => {
                 ],
               },
             ],
+          });
+        }
+
+        if (url.includes('/api/users/1/profile') && !init?.method) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              id: 1,
+              name: 'Jefferson Franca',
+              email: 'jefferson@email.com',
+              token: 'token-123',
+            }),
+          });
+        }
+
+        if (init?.method === 'PUT' && url.includes('/api/users/1/profile')) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              message: 'Profile updated successfully.',
+              user: {
+                id: 1,
+                name: 'Jef Franca',
+                email: 'jef@email.com',
+                token: 'token-123',
+              },
+            }),
           });
         }
 
@@ -395,6 +426,36 @@ describe('App', () => {
     await waitFor(() => {
       expect(screen.getByRole('link', { name: 'Entrar' })).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'Perfil' })).not.toBeInTheDocument();
+    });
+  });
+
+  it('atualiza os dados do perfil do usuario logado', async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole('link', { name: 'Entrar' }));
+    await user.type(screen.getByPlaceholderText('voce@email.com'), 'jefferson@email.com');
+    await user.type(screen.getByPlaceholderText('Sua senha'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Entrar' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Perfil' })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('link', { name: 'Perfil' }));
+
+    const nameInput = await screen.findByDisplayValue('Jefferson Franca');
+    const emailInput = screen.getByDisplayValue('jefferson@email.com');
+
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Jef Franca');
+    await user.clear(emailInput);
+    await user.type(emailInput, 'jef@email.com');
+    await user.click(screen.getByRole('button', { name: 'Salvar perfil' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Perfil atualizado com sucesso.')).toBeInTheDocument();
     });
   });
 

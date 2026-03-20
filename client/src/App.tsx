@@ -162,7 +162,11 @@ export default function App() {
   }
 
   async function handleConfirmOrder(orderPayload: OrderPayload) {
-    await createOrder(orderPayload);
+    if (!currentUser) {
+      throw new Error('Entre na sua conta para confirmar o pedido.');
+    }
+
+    await createOrder(orderPayload, currentUser.token);
     setCart([]);
     window.location.hash = buildOrderSuccessHash();
   }
@@ -339,7 +343,7 @@ export default function App() {
           />
         </main>
       ) : currentPage === 'profile' ? (
-        <Profile currentUser={currentUser} />
+        <Profile currentUser={currentUser} onProfileUpdated={handleSignedIn} />
       ) : currentPage === 'signin' ? (
         <SignIn onSignedIn={handleSignedIn} />
       ) : currentPage === 'signup' ? (

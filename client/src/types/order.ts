@@ -20,6 +20,7 @@ export type OrderPayload = {
 
 export type Order = OrderPayload & {
   id: number;
+  status: string;
   createdAt: string;
 };
 

@@ -643,6 +643,33 @@ button {
   gap: 16px;
 }
 
+.profile-order-card__summary {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.profile-order-status {
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(187, 90, 50, 0.12);
+  color: #8d4323;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.profile-address-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: #fffdfa;
+  border: 1px solid rgba(87, 68, 56, 0.08);
+}
+
+.profile-address-card p {
+  margin-bottom: 0;
+}
+
 .profile-order-card h3 {
   margin: 4px 0 0;
 }

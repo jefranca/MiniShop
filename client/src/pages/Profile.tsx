@@ -1,17 +1,23 @@
 import { useEffect, useState } from 'react';
 import { listOrdersByUser } from '../services/orderService';
+import { getUserProfile, updateUserProfile } from '../services/userService';
 import type { Order } from '../types/order';
 import type { AuthUser } from '../types/user';
 import { currency } from '../utils/formatters';
 
 type ProfileProps = {
   currentUser: AuthUser | null;
+  onProfileUpdated: (user: AuthUser) => void;
 };
 
-export function Profile({ currentUser }: ProfileProps) {
+export function Profile({ currentUser, onProfileUpdated }: ProfileProps) {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [name, setName] = useState(currentUser?.name ?? '');
+  const [email, setEmail] = useState(currentUser?.email ?? '');
   const [loading, setLoading] = useState(Boolean(currentUser));
   const [message, setMessage] = useState('');
+  const [profileMessage, setProfileMessage] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   useEffect(() => {
     if (!currentUser) {
@@ -21,11 +27,18 @@ export function Profile({ currentUser }: ProfileProps) {
     }
 
     const userId = currentUser.id;
+    const userToken = currentUser.token;
+    setName(currentUser.name);
+    setEmail(currentUser.email);
 
     async function loadOrders() {
       try {
         setLoading(true);
-        const userOrders = await listOrdersByUser(userId);
+        const profile = await getUserProfile(userId, userToken);
+        setName(profile.name);
+        setEmail(profile.email);
+        onProfileUpdated(profile);
+        const userOrders = await listOrdersByUser(userId, userToken);
         setOrders(userOrders);
       } catch (error) {
         setMessage(error instanceof Error ? error.message : 'Erro ao carregar pedidos.');
@@ -35,7 +48,33 @@ export function Profile({ currentUser }: ProfileProps) {
     }
 
     void loadOrders();
-  }, [currentUser]);
+  }, [currentUser, onProfileUpdated]);
+
+  const latestOrder = orders[0];
+
+  async function handleProfileSave() {
+    if (!currentUser) {
+      return;
+    }
+
+    try {
+      setIsSavingProfile(true);
+      setProfileMessage('');
+      const response = await updateUserProfile(currentUser.id, currentUser.token, {
+        name: name.trim(),
+        email: email.trim(),
+      });
+      onProfileUpdated({
+        ...response.user,
+        token: currentUser.token,
+      });
+      setProfileMessage('Perfil atualizado com sucesso.');
+    } catch (error) {
+      setProfileMessage(error instanceof Error ? error.message : 'Erro ao atualizar perfil.');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  }
 
   if (!currentUser) {
     return (
@@ -75,6 +114,49 @@ export function Profile({ currentUser }: ProfileProps) {
             <strong>{currency.format(orders.reduce((sum, order) => sum + order.total, 0))}</strong>
           </div>
         </div>
+
+        <div className="auth-form">
+          <label className="admin-field">
+            <span>Nome</span>
+            <input value={name} onChange={(event) => setName(event.target.value)} />
+          </label>
+          <label className="admin-field">
+            <span>E-mail</span>
+            <input value={email} onChange={(event) => setEmail(event.target.value)} />
+          </label>
+          {profileMessage ? <p className="checkout-helper">{profileMessage}</p> : null}
+          <button
+            type="button"
+            className="checkout-button checkout-button--inline"
+            onClick={() => void handleProfileSave()}
+            disabled={isSavingProfile}
+          >
+            {isSavingProfile ? 'Salvando...' : 'Salvar perfil'}
+          </button>
+        </div>
+      </section>
+
+      <section className="auth-card">
+        <div className="section-heading">
+          <div>
+            <p className="section-label">Endereco salvo</p>
+            <h2>Ultima entrega</h2>
+          </div>
+        </div>
+
+        {latestOrder ? (
+          <div className="profile-address-card">
+            <strong>
+              {latestOrder.street}, {latestOrder.number}
+            </strong>
+            <p className="catalog__text">
+              {latestOrder.neighborhood} | {latestOrder.city} - {latestOrder.state}
+            </p>
+            <p className="catalog__text">CEP {latestOrder.cep}</p>
+          </div>
+        ) : (
+          <p className="status-message">Seu endereco salvo vai aparecer aqui apos a primeira compra.</p>
+        )}
       </section>
 
       <section className="auth-card">
@@ -100,10 +182,17 @@ export function Profile({ currentUser }: ProfileProps) {
                     <p className="section-label">Pedido #{order.id}</p>
                     <h3>{new Date(order.createdAt).toLocaleDateString('pt-BR')}</h3>
                   </div>
-                  <strong>{currency.format(order.total)}</strong>
+                  <div className="profile-order-card__summary">
+                    <span className="profile-order-status">{order.status}</span>
+                    <strong>{currency.format(order.total)}</strong>
+                  </div>
                 </div>
                 <p className="catalog__text">
                   {order.items.length} item(ns) | {order.paymentMethod} | {order.city} - {order.state}
+                </p>
+                <p className="catalog__text">
+                  Subtotal {currency.format(order.subtotal)} | Frete {currency.format(order.shipping)}
+                  {' | '}Desconto {currency.format(order.discount)}
                 </p>
                 <div className="profile-order-items">
                   {order.items.map((item) => (
