@@ -10,7 +10,7 @@ MiniShop é um mini e-commerce full stack construido com `React + TypeScript` no
 - checkout com CEP, preenchimento automatico de endereco e cupom
 - autenticacao com cadastro, login, logout e sessao no front
 - perfil do usuario com historico de compras e edicao de dados
-- API com Prisma, SQLite e JWT
+- API com Prisma, PostgreSQL e JWT
 
 ## Stack
 
@@ -28,7 +28,7 @@ MiniShop é um mini e-commerce full stack construido com `React + TypeScript` no
 - Express
 - TypeScript
 - Prisma
-- SQLite
+- PostgreSQL
 - JSON Web Token
 - Vitest + Supertest
 
@@ -97,7 +97,7 @@ Mini e-commerce/
 
 ## Banco De Dados
 
-O projeto usa `Prisma + SQLite`.
+O projeto usa `Prisma + PostgreSQL`.
 
 Modelos atuais:
 
@@ -150,10 +150,10 @@ PORT=3333
 npm run prisma:generate --workspace server
 ```
 
-### 4. Sincronizar o banco local
+### 4. Criar o banco e rodar as migrations
 
 ```bash
-npx prisma db push --schema server/prisma/schema.prisma
+npm run prisma:migrate --workspace server -- --name init
 ```
 
 ### 5. Popular a base com a seed inicial
@@ -259,7 +259,7 @@ npm run test --workspace server
 ## Observacoes
 
 - o token JWT usa `JWT_SECRET` se estiver definido; caso contrario, usa um valor local de desenvolvimento
-- o banco local fica em `server/prisma/dev.db`
+- configure `DATABASE_URL` para seu PostgreSQL local ou hospedado
 - a seed pode ser reaplicada durante o desenvolvimento para repovoar produtos e categorias
 
 ## Proximos Passos Possiveis

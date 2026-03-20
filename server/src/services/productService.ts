@@ -4,6 +4,17 @@ import { prisma } from '../lib/prisma.js';
 import type { Product, ProductInput } from '../types/product.js';
 import { resetUsers } from './userService.js';
 
+async function syncSequence(tableName: string) {
+  await prisma.$executeRawUnsafe(
+    `
+      SELECT setval(
+        pg_get_serial_sequence('"${tableName}"', 'id'),
+        COALESCE((SELECT MAX(id) FROM "${tableName}"), 1)
+      );
+    `,
+  );
+}
+
 export function listProducts() {
   return prisma.product.findMany({
     orderBy: {
@@ -67,4 +78,6 @@ export async function resetProducts() {
   await prisma.product.createMany({
     data: productSeed,
   });
+  await syncSequence('categories');
+  await syncSequence('products');
 }
