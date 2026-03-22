@@ -34,9 +34,7 @@ export function SignIn({ onSignedIn }: SignInProps) {
       return;
     }
 
-    setRecoveryMessage(
-      'Quando o fluxo estiver ativo, enviaremos as instrucoes para este e-mail.',
-    );
+    setRecoveryMessage('Quando o fluxo estiver ativo, enviaremos as instrucoes para este e-mail.');
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -153,11 +151,7 @@ export function SignIn({ onSignedIn }: SignInProps) {
               {recoveryMessage ? <p className="checkout-helper">{recoveryMessage}</p> : null}
 
               <div className="auth-modal__actions">
-                <button
-                  type="button"
-                  className="secondary-button"
-                  onClick={closeRecoveryModal}
-                >
+                <button type="button" className="secondary-button" onClick={closeRecoveryModal}>
                   Fechar
                 </button>
                 <button type="submit" className="checkout-button checkout-button--inline">

@@ -13,7 +13,12 @@ import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
 import { createCategory, listCategories } from './services/categoryService';
 import { createOrder } from './services/orderService';
-import { createProduct, deleteProduct, listProducts, updateProduct } from './services/productService';
+import {
+  createProduct,
+  deleteProduct,
+  listProducts,
+  updateProduct,
+} from './services/productService';
 import type { OrderPayload } from './types/order';
 import type { CartItem, Category, Product, ProductFormState } from './types/product';
 import type { AuthUser } from './types/user';
@@ -39,9 +44,7 @@ export default function App() {
     | 'signup'
     | 'admin'
     | 'profile'
-  >(
-    getCurrentRoute().page,
-  );
+  >(getCurrentRoute().page);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [productForm, setProductForm] = useState<ProductFormState>(initialProductForm);
   const [adminMessage, setAdminMessage] = useState('');
@@ -89,7 +92,10 @@ export default function App() {
     async function loadStoreData() {
       try {
         setLoading(true);
-        const [productsData, categoriesData] = await Promise.all([listProducts(), listCategories()]);
+        const [productsData, categoriesData] = await Promise.all([
+          listProducts(),
+          listCategories(),
+        ]);
         setProducts(productsData);
         setCategories(categoriesData);
         setProductForm((current) => ({
@@ -257,7 +263,9 @@ export default function App() {
 
       if (isEditing) {
         setProducts((currentProducts) =>
-          currentProducts.map((product) => (product.id === savedProduct.id ? savedProduct : product)),
+          currentProducts.map((product) =>
+            product.id === savedProduct.id ? savedProduct : product,
+          ),
         );
         setAdminMessage('Produto atualizado com sucesso.');
       } else {
@@ -268,9 +276,7 @@ export default function App() {
       resetAdminForm();
     } catch (submitError) {
       const message =
-        submitError instanceof Error
-          ? submitError.message
-          : 'Erro inesperado ao salvar produto.';
+        submitError instanceof Error ? submitError.message : 'Erro inesperado ao salvar produto.';
       setAdminMessage(message);
     } finally {
       setIsSubmittingProduct(false);
@@ -283,7 +289,9 @@ export default function App() {
     try {
       await deleteProduct(productId);
 
-      setProducts((currentProducts) => currentProducts.filter((product) => product.id !== productId));
+      setProducts((currentProducts) =>
+        currentProducts.filter((product) => product.id !== productId),
+      );
 
       if (editingProductId === productId) {
         resetAdminForm();
@@ -292,9 +300,7 @@ export default function App() {
       setAdminMessage('Produto removido com sucesso.');
     } catch (deleteError) {
       const message =
-        deleteError instanceof Error
-          ? deleteError.message
-          : 'Erro inesperado ao remover produto.';
+        deleteError instanceof Error ? deleteError.message : 'Erro inesperado ao remover produto.';
       setAdminMessage(message);
     }
   }
@@ -302,7 +308,11 @@ export default function App() {
   return (
     <div className="page-shell">
       <header className="hero">
-        <HeaderComponent currentPage={currentPage} currentUser={currentUser} onLogout={handleLogout} />
+        <HeaderComponent
+          currentPage={currentPage}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+        />
         <Hero
           currentPage={currentPage}
           productCount={products.length}

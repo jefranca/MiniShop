@@ -5,10 +5,7 @@ import {
   createCategoryController,
   listCategoriesController,
 } from './controllers/categoryController.js';
-import {
-  createOrderController,
-  listUserOrdersController,
-} from './controllers/orderController.js';
+import { createOrderController, listUserOrdersController } from './controllers/orderController.js';
 import {
   showUserProfileController,
   updateUserProfileController,

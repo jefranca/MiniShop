@@ -6,7 +6,8 @@ export const productSeed: Product[] = [
     name: 'Jaqueta Atlas',
     category: 'Moda',
     price: 249.9,
-    image: 'https://img.ltwebstatic.com/v4/j/spmp/2025/06/18/c3/1750232743478df25bdadaf4689d5eed54c950174f_thumbnail_405x.webp',
+    image:
+      'https://img.ltwebstatic.com/v4/j/spmp/2025/06/18/c3/1750232743478df25bdadaf4689d5eed54c950174f_thumbnail_405x.webp',
     description: 'Camada premium para dias corridos, com textura leve e corte urbano.',
   },
   {

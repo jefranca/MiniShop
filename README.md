@@ -109,6 +109,12 @@ Modelos atuais:
 
 O schema principal esta em `server/prisma/schema.prisma`.
 
+## Deploy
+
+- Aplicacao online: [mini-shop-client.vercel.app](https://mini-shop-client.vercel.app)
+- API online: [minishop-api.onrender.com](https://minishop-api.onrender.com)
+- Health check: [minishop-api.onrender.com/api/health](https://minishop-api.onrender.com/api/health)
+
 ## Como Rodar O Projeto
 
 ### 1. Instalar dependencias

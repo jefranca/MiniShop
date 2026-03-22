@@ -12,12 +12,7 @@ type HomeProps = {
 
 const HOME_PRODUCT_LIMIT = 8;
 
-export function Home({
-  filteredProducts,
-  loading,
-  error,
-  addToCart,
-}: HomeProps) {
+export function Home({ filteredProducts, loading, error, addToCart }: HomeProps) {
   const visibleProducts = filteredProducts.slice(0, HOME_PRODUCT_LIMIT);
   const hasMoreProducts = filteredProducts.length > HOME_PRODUCT_LIMIT;
 
@@ -28,8 +23,8 @@ export function Home({
           <p className="section-label">Catalogo</p>
           <h2>Escolha os destaques da semana</h2>
           <p className="catalog__text">
-            A home mostra um recorte mais leve da vitrine. Para navegar por categorias, use a
-            pagina dedicada.
+            A home mostra um recorte mais leve da vitrine. Para navegar por categorias, use a pagina
+            dedicada.
           </p>
         </div>
       </div>

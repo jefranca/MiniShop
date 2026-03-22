@@ -22,9 +22,7 @@ export function Catalog({
   addToCart,
 }: CatalogProps) {
   const title =
-    selectedCategory === 'Todos'
-      ? 'Todos os produtos'
-      : `Todos os produtos de ${selectedCategory}`;
+    selectedCategory === 'Todos' ? 'Todos os produtos' : `Todos os produtos de ${selectedCategory}`;
 
   const description =
     selectedCategory === 'Todos'

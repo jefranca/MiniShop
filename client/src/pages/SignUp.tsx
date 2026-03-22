@@ -54,7 +54,8 @@ export function SignUp({ onSignedUp }: SignUpProps) {
             <p className="section-label">Cadastro</p>
             <h2>Criar conta na MiniShop</h2>
             <p className="catalog__text">
-              Monte seu acesso para salvar pedidos, enderecos e uma experiencia de compra mais fluida.
+              Monte seu acesso para salvar pedidos, enderecos e uma experiencia de compra mais
+              fluida.
             </p>
           </div>
         </div>

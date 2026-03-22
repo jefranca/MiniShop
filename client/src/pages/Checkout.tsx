@@ -22,8 +22,9 @@ export function Checkout({ cart, cartTotal, currentUser, onConfirmOrder }: Check
   const [state, setState] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cartao');
   const [shipping, setShipping] = useState<number | null>(null);
-  const [shippingMessage, setShippingMessage] = useState('Preencha o endereco completo para calcular o frete.');
-  const [cepMessage, setCepMessage] = useState('Digite um CEP valido para preencher o endereco automaticamente.');
+  const [cepMessage, setCepMessage] = useState(
+    'Digite um CEP valido para preencher o endereco automaticamente.',
+  );
   const [couponCode, setCouponCode] = useState('');
   const [couponMessage, setCouponMessage] = useState('');
   const [discount, setDiscount] = useState(0);
@@ -40,7 +41,6 @@ export function Checkout({ cart, cartTotal, currentUser, onConfirmOrder }: Check
 
   useEffect(() => {
     setShipping(null);
-    setShippingMessage('Preencha o endereco completo para calcular o frete.');
   }, [cep, street, number, neighborhood, city, state]);
 
   useEffect(() => {
@@ -53,7 +53,6 @@ export function Checkout({ cart, cartTotal, currentUser, onConfirmOrder }: Check
     const calculatedShipping = cepPrefix <= 3 ? 18.9 : cepPrefix <= 6 ? 24.9 : 31.9;
 
     setShipping(calculatedShipping);
-    setShippingMessage('Frete calculado automaticamente com base no CEP informado.');
   }, [cep, street, number, neighborhood, city, state, isAddressComplete]);
 
   useEffect(() => {
@@ -122,7 +121,10 @@ export function Checkout({ cart, cartTotal, currentUser, onConfirmOrder }: Check
     setEmail((current) => current || currentUser.email);
   }, [currentUser]);
 
-  const total = useMemo(() => cartTotal + (shipping ?? 0) - discount, [cartTotal, shipping, discount]);
+  const total = useMemo(
+    () => cartTotal + (shipping ?? 0) - discount,
+    [cartTotal, shipping, discount],
+  );
 
   function handleApplyCoupon(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -232,7 +234,11 @@ export function Checkout({ cart, cartTotal, currentUser, onConfirmOrder }: Check
 
             <label className="admin-field">
               <span>Nome completo</span>
-              <input placeholder="Seu nome" value={customerName} onChange={(event) => setCustomerName(event.target.value)} />
+              <input
+                placeholder="Seu nome"
+                value={customerName}
+                onChange={(event) => setCustomerName(event.target.value)}
+              />
             </label>
 
             <label className="admin-field">
@@ -307,7 +313,10 @@ export function Checkout({ cart, cartTotal, currentUser, onConfirmOrder }: Check
 
             <label className="admin-field">
               <span>Pagamento</span>
-              <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
+              <select
+                value={paymentMethod}
+                onChange={(event) => setPaymentMethod(event.target.value)}
+              >
                 <option value="cartao">Cartao</option>
                 <option value="pix">Pix</option>
                 <option value="boleto">Boleto</option>

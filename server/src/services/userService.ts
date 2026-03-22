@@ -35,10 +35,7 @@ export async function findUserById(userId: number) {
   return user ? toPublicUser(user as PersistedUser) : null;
 }
 
-export async function updateUserProfile(
-  userId: number,
-  input: { name: string; email: string },
-) {
+export async function updateUserProfile(userId: number, input: { name: string; email: string }) {
   const existingUser = await prisma.user.findUnique({
     where: {
       id: userId,

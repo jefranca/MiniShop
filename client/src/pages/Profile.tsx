@@ -155,7 +155,9 @@ export function Profile({ currentUser, onProfileUpdated }: ProfileProps) {
             <p className="catalog__text">CEP {latestOrder.cep}</p>
           </div>
         ) : (
-          <p className="status-message">Seu endereco salvo vai aparecer aqui apos a primeira compra.</p>
+          <p className="status-message">
+            Seu endereco salvo vai aparecer aqui apos a primeira compra.
+          </p>
         )}
       </section>
 
@@ -168,7 +170,9 @@ export function Profile({ currentUser, onProfileUpdated }: ProfileProps) {
         </div>
 
         {loading ? <p className="status-message">Carregando pedidos...</p> : null}
-        {!loading && message ? <p className="status-message status-message--error">{message}</p> : null}
+        {!loading && message ? (
+          <p className="status-message status-message--error">{message}</p>
+        ) : null}
         {!loading && !message && orders.length === 0 ? (
           <p className="status-message">Voce ainda nao concluiu compras com essa conta.</p>
         ) : null}
@@ -188,10 +192,12 @@ export function Profile({ currentUser, onProfileUpdated }: ProfileProps) {
                   </div>
                 </div>
                 <p className="catalog__text">
-                  {order.items.length} item(ns) | {order.paymentMethod} | {order.city} - {order.state}
+                  {order.items.length} item(ns) | {order.paymentMethod} | {order.city} -{' '}
+                  {order.state}
                 </p>
                 <p className="catalog__text">
-                  Subtotal {currency.format(order.subtotal)} | Frete {currency.format(order.shipping)}
+                  Subtotal {currency.format(order.subtotal)} | Frete{' '}
+                  {currency.format(order.shipping)}
                   {' | '}Desconto {currency.format(order.discount)}
                 </p>
                 <div className="profile-order-items">

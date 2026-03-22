@@ -6,10 +6,7 @@ import { findUserById, updateUserProfile } from '../services/userService.js';
 import { validateUserId } from '../validations/orderValidation.js';
 import { validateProfileUpdateInput } from '../validations/userValidation.js';
 
-export async function showUserProfileController(
-  request: AuthenticatedRequest,
-  response: Response,
-) {
+export async function showUserProfileController(request: AuthenticatedRequest, response: Response) {
   const userId = validateUserId(String(request.params.userId));
 
   if (request.authUser?.userId !== userId) {
