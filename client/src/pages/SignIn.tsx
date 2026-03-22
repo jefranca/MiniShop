@@ -11,6 +11,33 @@ export function SignIn({ onSignedIn }: SignInProps) {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryMessage, setRecoveryMessage] = useState('');
+
+  function openRecoveryModal() {
+    setRecoveryEmail(email.trim());
+    setRecoveryMessage('');
+    setIsRecoveryOpen(true);
+  }
+
+  function closeRecoveryModal() {
+    setIsRecoveryOpen(false);
+    setRecoveryMessage('');
+  }
+
+  function handleRecoverySubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!recoveryEmail.trim()) {
+      setRecoveryMessage('Digite seu e-mail para continuar.');
+      return;
+    }
+
+    setRecoveryMessage(
+      'Quando o fluxo estiver ativo, enviaremos as instrucoes para este e-mail.',
+    );
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -75,7 +102,9 @@ export function SignIn({ onSignedIn }: SignInProps) {
               <input type="checkbox" />
               <span>Continuar conectado</span>
             </label>
-            <a href="#/signup">Esqueci minha senha</a>
+            <button type="button" className="auth-link-button" onClick={openRecoveryModal}>
+              Esqueci minha senha
+            </button>
           </div>
 
           {message ? <p className="checkout-helper">{message}</p> : null}
@@ -89,6 +118,56 @@ export function SignIn({ onSignedIn }: SignInProps) {
           Ainda nao tem conta? <a href="#/signup">Criar conta</a>
         </p>
       </section>
+
+      {isRecoveryOpen ? (
+        <div className="auth-modal-backdrop" role="presentation" onClick={closeRecoveryModal}>
+          <section
+            className="auth-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="password-recovery-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="section-heading">
+              <div>
+                <p className="section-label">Recuperacao</p>
+                <h2 id="password-recovery-title">Esqueci minha senha</h2>
+                <p className="catalog__text">
+                  Informe seu e-mail para receber as instrucoes de recuperacao quando esse fluxo
+                  estiver ativo.
+                </p>
+              </div>
+            </div>
+
+            <form className="auth-form" onSubmit={handleRecoverySubmit}>
+              <label className="admin-field">
+                <span>E-mail</span>
+                <input
+                  type="email"
+                  placeholder="voce@email.com"
+                  value={recoveryEmail}
+                  onChange={(event) => setRecoveryEmail(event.target.value)}
+                />
+              </label>
+
+              {recoveryMessage ? <p className="checkout-helper">{recoveryMessage}</p> : null}
+
+              <div className="auth-modal__actions">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={closeRecoveryModal}
+                >
+                  Fechar
+                </button>
+                <button type="submit" className="checkout-button checkout-button--inline">
+                  Enviar
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
